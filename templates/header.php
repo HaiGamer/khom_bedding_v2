@@ -109,7 +109,7 @@ $page_description = isset($page_description) ? $page_description : 'Chuyên cung
                <i class="bi bi-list"></i>
             </button>
             <a href="/" class="mobile-logo">
-               <img src="https://via.placeholder.com/120x40.png?text=Khóm" alt="Logo Khóm Bedding">
+               <img src="/assets/images/logo.png" alt="Logo Khóm Bedding">
             </a>
             <div class="mobile-header-right">
                <button class="btn" data-bs-toggle="modal" data-bs-target="#searchModal"><i

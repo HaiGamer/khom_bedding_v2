@@ -320,3 +320,119 @@ h1, h2, h3, h4, h5, h6 {
     color: #999;
     font-size: 0.9rem;
 }
+
+/* --- TRANG DANH SÁCH SẢN PHẨM --- */
+aside h4 {
+    font-weight: 600;
+    color: var(--color-text);
+}
+.filter-group h5 {
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.accordion-button {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--color-main);
+    color: var(--color-accent);
+}
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(212, 163, 115, 0.25); /* Màu D4A373 */
+}
+.form-check-label {
+    cursor: pointer;
+}
+#sort-by {
+    max-width: 200px;
+}
+/*
+ * SỬA LỖI STICKY HEADER CHE MẤT NỘI DUNG KHI CUỘN TRANG
+ * Thuộc tính này sẽ thêm một khoảng đệm "ảo" ở trên phần tử
+ * khi nó là mục tiêu của một thao tác cuộn (như click vào link neo hoặc dùng JS).
+*/
+#products-main-header {
+  /*
+   * Giá trị này là khoảng đệm cho màn hình di động.
+   * Header di động của chúng ta cao khoảng 60px, ta để dư ra một chút là 80px.
+  */
+  scroll-margin-top: 90px;
+}
+
+@media (min-width: 992px) {
+  /* * Áp dụng khi màn hình lớn hơn hoặc bằng 992px (breakpoint 'lg' của Bootstrap).
+   * Header desktop 2 tầng của chúng ta cao hơn, khoảng 120-130px.
+   * Ta đặt giá trị là 140px để đảm bảo có khoảng trống thoải mái.
+  */
+  #products-main-header {
+    scroll-margin-top: 150px;
+  }
+}
+
+/* --- TRANG CHI TIẾT SẢN PHẨM --- */
+.product-gallery .main-image-container {
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 5px;
+}
+.thumbnail-container {
+    display: flex;
+    gap: 10px;
+}
+.thumbnail-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+.thumbnail-image.active,
+.thumbnail-image:hover {
+    border-color: var(--color-accent);
+}
+
+.product-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+.product-meta {
+    font-size: 0.9rem;
+}
+.product-price .price-sale {
+    color: var(--color-accent);
+    font-weight: bold;
+}
+.product-price .price-original {
+    font-size: 1.2rem;
+    text-decoration: line-through;
+    color: #999;
+    margin-left: 15px;
+}
+.variant-group .btn {
+    min-width: 80px;
+}
+
+.quantity-input {
+    display: flex;
+    max-width: 130px;
+}
+.quantity-input .form-control {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+}
+/* Tắt mũi tên lên/xuống của input number */
+.quantity-input input[type=number]::-webkit-inner-spin-button,
+.quantity-input input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.quantity-input input[type=number] {
+    -moz-appearance: textfield;
+}

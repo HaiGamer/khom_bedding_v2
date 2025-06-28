@@ -1,20 +1,29 @@
 # Bật công cụ Rewrite Engine
 RewriteEngine On
 
+# ===================================================================
+# === THÊM DÒNG NÀY VÀO ===
+# Chỉ định thư mục gốc cho việc rewrite URL
+RewriteBase /
+# ===================================================================
+
+Options -Indexes
+
 # Bỏ qua các file và thư mục đã tồn tại
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
-# Quy tắc 1: Chuyển hướng các yêu cầu .html sang .php
-# Ví dụ: truy cập /san-pham.html sẽ thực thi file san-pham.php
-RewriteRule ^([^/]+)\.html$ $1.php [L,QSA]
-
-# Quy tắc 2: Chuyển hướng các yêu cầu có slug (ví dụ: chi tiết sản phẩm)
-# Ví dụ: /san-pham/ao-thun-co-tron.html sẽ chạy file product-detail.php
-# Chúng ta sẽ định nghĩa chi tiết hơn khi làm trang chi tiết
-RewriteRule ^san-pham/([^/]+)\.html$ product-detail.php?slug=$1 [L,QSA]
-RewriteRule ^bai-viet/([^/]+)\.html$ post-detail.php?slug=$1 [L,QSA]
-
-# Ngăn chặn truy cập trực tiếp vào các file .php
+# Quy tắc không áp dụng cho thư mục /api/
+RewriteCond %{REQUEST_URI} !^/api/
 RewriteCond %{THE_REQUEST} \.php [NC]
 RewriteRule ^(.*)\.php$ $1.html [R=301,L]
+
+# Quy tắc chuyển hướng các yêu cầu .html sang .php (giữ nguyên)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^([^/]+)\.html$ $1.php [L,QSA]
+
+# Quy tắc cho các URL có slug (giữ nguyên)
+RewriteRule ^san-pham/([^/]+)\.html$ product-detail.php?slug=$1 [L,QSA]
+RewriteRule ^bai-viet/([^/]+)\.html$ post-detail.php?slug=$1 [L,QSA]
+RewriteRule ^category/([^/]+)\.html$ products.php?category=$1 [L,QSA]
