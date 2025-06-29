@@ -27,3 +27,8 @@ RewriteRule ^([^/]+)\.html$ $1.php [L,QSA]
 RewriteRule ^san-pham/([^/]+)\.html$ product-detail.php?slug=$1 [L,QSA]
 RewriteRule ^bai-viet/([^/]+)\.html$ post-detail.php?slug=$1 [L,QSA]
 RewriteRule ^category/([^/]+)\.html$ products.php?category=$1 [L,QSA]
+
+# Quy tắc cho các trang trong khu vực tài khoản
+RewriteRule ^account-addresses\.html$ account-addresses.php [L,QSA]
+RewriteRule ^account-orders\.html$ account-orders.php [L,QSA]
+RewriteRule ^account-order-detail\.html$ account-order-detail.php [L,QSA]

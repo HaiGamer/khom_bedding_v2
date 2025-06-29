@@ -24,7 +24,7 @@ function render_product_card_api($product) {
         $html .= '        <span class="product-card-sale">-' . $sale_percentage . '%</span>';
     }
     $html .= '        <div class="product-card-actions">';
-    $html .= '            <a href="#" class="btn-action" title="Thêm vào giỏ hàng"><i class="bi bi-cart-plus"></i></a>';
+    $html .= '            <a href="#" class="btn-action btn-add-to-cart" data-slug="'. htmlspecialchars($product['slug']) .'" title="Thêm vào giỏ hàng"><i class="bi bi-cart-plus"></i></a>';
     $html .= '            <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html" class="btn-action" title="Xem chi tiết"><i class="bi bi-eye"></i></a>';
     $html .= '        </div>';
     $html .= '    </div>';

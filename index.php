@@ -53,19 +53,19 @@ function render_product_card($product) {
     echo '<div class="col-6 col-lg-3 mb-4">';
     echo '  <div class="product-card">';
     echo '      <div class="product-card-img">';
-    echo '          <a href="/product-detail/'. htmlspecialchars($product['slug']) .'.html">';
-    echo '              <img src="'. htmlspecialchars($product['image_url'] ? $product['image_url'] : 'https://via.placeholder.com/400x400.png?text=No+Image') .'" alt="'. htmlspecialchars($product['name']) .'">';
+    echo '          <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">';
+    echo '              <img src="'. htmlspecialchars($product['image_url'] ? $product['image_url'] : '/assets/images/placeholder.png') .'" alt="'. htmlspecialchars($product['name']) .'">';
     echo '          </a>';
     if ($sale_percentage > 0) {
         echo '          <span class="product-card-sale">-' . $sale_percentage . '%</span>';
     }
     echo '          <div class="product-card-actions">';
-    echo '              <a href="#" class="btn-action" title="Thêm vào giỏ hàng"><i class="bi bi-cart-plus"></i></a>';
-    echo '              <a href="/product-detail/'. htmlspecialchars($product['slug']) .'.html" class="btn-action" title="Xem chi tiết"><i class="bi bi-eye"></i></a>';
+    echo '              <a href="#" class="btn-action btn-add-to-cart" data-slug="'. htmlspecialchars($product['slug']) .'" title="Thêm vào giỏ hàng"><i class="bi bi-cart-plus"></i></a>';
+    echo '              <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html" class="btn-action" title="Xem chi tiết"><i class="bi bi-eye"></i></a>';
     echo '          </div>';
     echo '      </div>';
     echo '      <div class="product-card-body">';
-    echo '          <h3 class="product-card-title"><a href="/product-detail/'. htmlspecialchars($product['slug']) .'.html">'. htmlspecialchars($product['name']) .'</a></h3>';
+    echo '          <h3 class="product-card-title"><a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">'. htmlspecialchars($product['name']) .'</a></h3>';
     echo '          <div class="product-card-price">';
     echo '              <span class="price-sale">'. $price_formatted .'</span>';
     if ($original_price_formatted) {

@@ -46,6 +46,7 @@ $page_description = isset($page_description) ? $page_description : 'Chuyên cung
    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
    <link rel="stylesheet" href="/assets/css/style.css">
+   <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 </head>
 
 <body>
