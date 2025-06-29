@@ -36,6 +36,17 @@ $stmt_best_sellers = $pdo->query("
 ");
 $best_selling_products = $stmt_best_sellers->fetchAll();
 
+// 4. LẤY 3 BỘ SƯU TẬP MỚI NHẤT CÓ HÌNH ẢNH
+$stmt_collections = $pdo->query("
+    SELECT name, slug, image_url 
+    FROM collections 
+    WHERE image_url IS NOT NULL AND image_url != '' 
+    ORDER BY id DESC 
+    LIMIT 3
+");
+$homepage_collections = $stmt_collections->fetchAll(PDO::FETCH_ASSOC);
+
+
 
 // --- HÀM TÁI SỬ DỤNG ---
 // Hàm để hiển thị một thẻ sản phẩm
@@ -134,7 +145,7 @@ function render_product_card($product) {
                     }
                     ?>
             </div>
-            <div class="text-center mt-3">
+            <div class="text-center mt-2">
                <a href="/category/<?php echo htmlspecialchars($cat['slug']); ?>.html"
                   class="btn btn-outline-primary btn-view-more">Xem Thêm</a>
             </div>
@@ -143,7 +154,27 @@ function render_product_card($product) {
       </div>
    </div>
 </section>
-
+<?php if (!empty($homepage_collections)): ?>
+<section class="homepage-collections">
+   <div class="container">
+      <div class="section-title text-center mb-4">
+      </div>
+      <div class="row">
+         <?php foreach($homepage_collections as $collection): ?>
+         <div class="col-md-4 mb-4">
+            <a href="/collection/<?php echo htmlspecialchars($collection['slug']); ?>.html" class="collection-card">
+               <img src="<?php echo htmlspecialchars($collection['image_url']); ?>"
+                  alt="<?php echo htmlspecialchars($collection['name']); ?>" class="collection-card-img">
+               <div class="collection-card-overlay">
+                  <h3 class="collection-card-title"><?php echo htmlspecialchars($collection['name']); ?></h3>
+               </div>
+            </a>
+         </div>
+         <?php endforeach; ?>
+      </div>
+   </div>
+</section>
+<?php endif; ?>
 <section class="new-bestsellers-section py-5 bg-light">
    <div class="container">
       <ul class="nav nav-tabs justify-content-center" id="newBestsellersTabs" role="tablist">

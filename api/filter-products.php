@@ -1,11 +1,8 @@
 <?php
-// Trả về dữ liệu dạng JSON
 header('Content-Type: application/json');
-
-// Kết nối CSDL
 require_once __DIR__ . '/../core/db_connect.php';
 
-// Hàm render thẻ sản phẩm (tái sử dụng)
+// Hàm render thẻ sản phẩm (giữ nguyên không đổi)
 function render_product_card_api($product) {
     $price_formatted = number_format($product['price'], 0, ',', '.') . 'đ';
     $original_price_formatted = $product['original_price'] ? number_format($product['original_price'], 0, ',', '.') . 'đ' : '';
@@ -13,7 +10,6 @@ function render_product_card_api($product) {
     if ($product['original_price'] && $product['price'] < $product['original_price']) {
         $sale_percentage = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
     }
-
     $html = '<div class="col-6 col-md-4 mb-4">';
     $html .= '<div class="product-card h-100">';
     $html .= '    <div class="product-card-img">';
@@ -43,29 +39,38 @@ function render_product_card_api($product) {
 }
 
 try {
-    // LẤY THAM SỐ TỪ URL
+    // --- 1. LẤY TẤT CẢ CÁC THAM SỐ ---
     $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
     $sort_by = $_GET['sort_by'] ?? 'default';
+    $filter_type = $_GET['filter_type'] ?? '';
+    $filter_slug = $_GET['filter_slug'] ?? '';
     $price_range = $_GET['price_range'] ?? '';
     $attributes = isset($_GET['attributes']) && is_array($_GET['attributes']) ? $_GET['attributes'] : [];
-    $category_slug = $_GET['category'] ?? '';
 
     $products_per_page = 9;
     $offset = ($page - 1) * $products_per_page;
 
-    // XÂY DỰNG CÂU TRUY VẤN
-    $base_sql_from = "FROM products p
-                      JOIN product_variants pv ON p.id = pv.product_id AND pv.is_default = 1
-                      LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1";
-    $sql_where = " WHERE 1=1 ";
+    // --- 2. XÂY DỰNG CÁC THÀNH PHẦN CỦA CÂU TRUY VẤN ---
+    $sql_select = "SELECT DISTINCT p.id, p.name, p.slug, pv.price, pv.original_price, pi.image_url, p.created_at, pv.id as variant_id";
+    $sql_from = " FROM products p 
+                  LEFT JOIN product_variants pv ON p.id = pv.product_id 
+                  LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1";
+    $sql_where = " WHERE pv.is_default = 1 "; // Luôn bắt đầu với điều kiện này
     $params = [];
 
-    if ($category_slug) {
-        $base_sql_from .= " JOIN categories c ON p.category_id = c.id ";
+    // Lọc theo danh mục hoặc bộ sưu tập
+    if ($filter_type === 'category' && !empty($filter_slug)) {
+        $sql_from .= " JOIN categories c ON p.category_id = c.id ";
         $sql_where .= " AND c.slug = ? ";
-        $params[] = $category_slug;
+        $params[] = $filter_slug;
+    } elseif ($filter_type === 'collection' && !empty($filter_slug)) {
+        $sql_from .= " JOIN product_collections pc ON p.id = pc.product_id 
+                       JOIN collections coll ON pc.collection_id = coll.id ";
+        $sql_where .= " AND coll.slug = ? ";
+        $params[] = $filter_slug;
     }
 
+    // Lọc theo khoảng giá
     if ($price_range) {
         list($min_price, $max_price) = explode('-', $price_range);
         if ($max_price === 'Infinity') {
@@ -78,23 +83,24 @@ try {
         }
     }
 
+    // Lọc theo thuộc tính
     if (!empty($attributes)) {
-        // Cần join thêm bảng để lọc theo thuộc tính
-        $base_sql_from .= " JOIN variant_values vv ON pv.id = vv.variant_id ";
+        $sql_from .= " JOIN variant_values vv ON pv.id = vv.variant_id ";
         $placeholders = implode(',', array_fill(0, count($attributes), '?'));
         $sql_where .= " AND vv.attribute_value_id IN ($placeholders) ";
-        // array_values để đảm bảo các key của mảng là tuần tự, tránh lỗi
         $params = array_merge($params, array_values($attributes));
     }
 
-    // ĐẾM TỔNG SỐ SẢN PHẨM
-    $count_sql = "SELECT COUNT(DISTINCT p.id) " . $base_sql_from . $sql_where;
+    // --- 3. THỰC THI TRUY VẤN ---
+
+    // Đếm tổng số sản phẩm
+    $count_sql = "SELECT COUNT(DISTINCT p.id) " . $sql_from . $sql_where;
     $stmt_count = $pdo->prepare($count_sql);
     $stmt_count->execute($params);
     $total_products = $stmt_count->fetchColumn();
     $total_pages = ceil($total_products / $products_per_page);
 
-    // SẮP XẾP
+    // Sắp xếp
     $sql_order_by = " ORDER BY ";
     switch ($sort_by) {
         case 'price_asc': $sql_order_by .= "pv.price ASC"; break;
@@ -104,20 +110,17 @@ try {
         default: $sql_order_by .= "p.created_at DESC"; break;
     }
 
-    // LẤY SẢN PHẨM
-    $product_sql = "SELECT DISTINCT p.id, p.name, p.slug, pv.price, pv.original_price, pi.image_url "
-                 . $base_sql_from . $sql_where . $sql_order_by . " LIMIT ? OFFSET ?";
-    
-    // Thêm tham số cho LIMIT và OFFSET vào cuối
+    // Lấy sản phẩm cho trang hiện tại
+    $product_sql = $sql_select . $sql_from . $sql_where . " GROUP BY p.id " . $sql_order_by . " LIMIT ? OFFSET ?";
     $product_params = $params;
     $product_params[] = $products_per_page;
     $product_params[] = $offset;
 
     $stmt_products = $pdo->prepare($product_sql);
     $stmt_products->execute($product_params);
-    $products = $stmt_products->fetchAll();
+    $products = $stmt_products->fetchAll(PDO::FETCH_ASSOC);
 
-    // TẠO HTML
+    // --- 4. TẠO HTML VÀ TRẢ VỀ JSON ---
     $product_html = '';
     if ($products) {
         foreach ($products as $product) {
@@ -127,7 +130,6 @@ try {
         $product_html = '<div class="col-12"><p class="text-center mt-4">Không tìm thấy sản phẩm nào phù hợp.</p></div>';
     }
 
-    // TẠO HTML PHÂN TRANG
     $pagination_html = '';
     if ($total_pages > 1) {
         $pagination_html .= '<ul class="pagination">';
@@ -138,7 +140,6 @@ try {
         $pagination_html .= '</ul>';
     }
 
-    // TRẢ VỀ KẾT QUẢ
     echo json_encode([
         'product_html' => $product_html,
         'pagination_html' => $pagination_html,
@@ -146,16 +147,7 @@ try {
     ]);
 
 } catch (PDOException $e) {
-    // Nếu có lỗi CSDL, trả về lỗi 500 và thông báo JSON
     http_response_code(500);
-    echo json_encode([
-        'error' => 'Database Error',
-        'message' => $e->getMessage() // Chỉ hiển thị khi đang phát triển
-    ]);
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'General Error',
-        'message' => $e->getMessage()
-    ]);
+    error_log($e->getMessage()); // Ghi log lỗi để admin xem
+    echo json_encode(['error' => 'Database Error', 'message' => 'Đã có lỗi xảy ra với cơ sở dữ liệu.']);
 }

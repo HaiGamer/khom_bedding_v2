@@ -229,5 +229,5 @@ include __DIR__ . '/templates/sidebar.php';
    </div>
 </template>
 
-<script src="/assets/js/product-form.js"></script>
+<script src="/admin/assets/js/product-form.js"></script>
 <?php include __DIR__ . '/templates/footer.php'; ?>

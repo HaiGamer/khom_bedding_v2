@@ -1,11 +1,35 @@
 <?php
 // --- LOGIC CỦA TRANG ---
+// --- LOGIC MỚI: XỬ LÝ CẢ DANH MỤC VÀ BỘ SƯU TẬP ---
+$category_slug = filter_input(INPUT_GET, 'category', FILTER_SANITIZE_SPECIAL_CHARS);
+$collection_slug = filter_input(INPUT_GET, 'collection_slug', FILTER_SANITIZE_SPECIAL_CHARS);
+
 // Tạm thời, tiêu đề là chung. Sau này sẽ làm động theo danh mục.
 $page_title = "Sản phẩm - Khóm Bedding";
 $page_description = "Khám phá tất cả sản phẩm chăn ga gối đệm chất lượng cao của Khóm Bedding.";
+$filter_type = '';
+$filter_slug = '';
+$current_name = '';
 
 include 'templates/header.php';
 
+if ($category_slug) {
+    // Lấy tên danh mục để hiển thị
+    $stmt = $pdo->prepare("SELECT name FROM categories WHERE slug = ?");
+    $stmt->execute([$category_slug]);
+    $current_name = $stmt->fetchColumn();
+    $page_title = $current_name ?: "Sản phẩm";
+    $filter_type = 'category';
+    $filter_slug = $category_slug;
+} elseif ($collection_slug) {
+    // Lấy tên bộ sưu tập để hiển thị
+    $stmt = $pdo->prepare("SELECT name FROM collections WHERE slug = ?");
+    $stmt->execute([$collection_slug]);
+    $current_name = $stmt->fetchColumn();
+    $page_title = "Bộ sưu tập: " . ($current_name ?: "");
+    $filter_type = 'collection';
+    $filter_slug = $collection_slug;
+}
 // --- TRUY VẤN DỮ LIỆU BAN ĐẦU (Sẽ làm ở các bước sau) ---
 // Lấy tất cả thuộc tính và giá trị để hiển thị bộ lọc
 try {
@@ -31,26 +55,35 @@ try {
 <div class="container py-5">
    <div class="row">
       <aside class="col-lg-3 d-none d-lg-block">
-         <h4><i class="bi bi-funnel-fill"></i> Bộ Lọc</h4>
-         <hr>
          <form id="filter-form">
-            <div class="filter-group mb-4">
-               <h5>Lọc theo giá</h5>
-               <div class="form-check">
-                  <input class="form-check-input" type="radio" name="price_range" id="price_all" value="" checked>
-                  <label class="form-check-label" for="price_all">Tất cả giá</label>
-               </div>
-               <div class="form-check">
-                  <input class="form-check-input" type="radio" name="price_range" id="price_1" value="0-1000000">
-                  <label class="form-check-label" for="price_1">Dưới 1,000,000đ</label>
-               </div>
-               <div class="form-check">
-                  <input class="form-check-input" type="radio" name="price_range" id="price_2" value="1000000-3000000">
-                  <label class="form-check-label" for="price_2">1,000,000đ - 3,000,000đ</label>
-               </div>
-               <div class="form-check">
-                  <input class="form-check-input" type="radio" name="price_range" id="price_3" value="3000000-Infinity">
-                  <label class="form-check-label" for="price_3">Trên 3,000,000đ</label>
+            <div class="accordion">
+               <div class="accordion-item">
+                  <h2 class="accordion-header">
+                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse">
+                        Bộ Lọc
+                     </button>
+                  </h2>
+                  <div class="accordion-body">
+                     <div class="form-check">
+                        <input class="form-check-input" type="radio" name="price_range" id="price_all" value="" checked>
+                        <label class="form-check-label" for="price_all">Tất cả giá</label>
+                     </div>
+                     <div class="form-check">
+                        <input class="form-check-input" type="radio" name="price_range" id="price_1" value="0-1000000">
+                        <label class="form-check-label" for="price_1">Dưới 1tr</label>
+                     </div>
+                     <div class="form-check">
+                        <input class="form-check-input" type="radio" name="price_range" id="price_2"
+                           value="1000000-3000000">
+                        <label class="form-check-label" for="price_2">1tr - 3tr</label>
+                     </div>
+                     <div class="form-check">
+                        <input class="form-check-input" type="radio" name="price_range" id="price_3"
+                           value="3000000-Infinity">
+                        <label class="form-check-label" for="price_3">Trên 3tr</label>
+                     </div>
+                  </div>
                </div>
             </div>
 
@@ -84,9 +117,13 @@ try {
          </form>
       </aside>
 
-      <main class="col-lg-9">
+
+
+
+      <main class="col-lg-9" data-filter-type="<?php echo $filter_type; ?>"
+         data-filter-slug="<?php echo $filter_slug; ?>">
          <div id="products-main-header" class="d-flex justify-content-between align-items-center mb-3">
-            <h1 class="h3" id="page-dynamic-title">Tất Cả Sản Phẩm</h1>
+            <h1 class="h3" id="page-dynamic-title"><?php echo htmlspecialchars($page_title); ?></h1>
             <button class="btn btn-outline-secondary d-lg-none" type="button" data-bs-toggle="offcanvas"
                data-bs-target="#offcanvasFilters" aria-controls="offcanvasFilters">
                <i class="bi bi-funnel-fill"></i> Lọc

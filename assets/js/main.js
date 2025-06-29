@@ -158,7 +158,12 @@ document.addEventListener("DOMContentLoaded", function() {
             // Lấy dữ liệu từ form trên desktop (ưu tiên) hoặc mobile
             const form = document.getElementById('filter-form');
             const formData = new FormData(form);
-
+            // --- LOGIC MỚI: LẤY VÀ GỬI THAM SỐ LỌC CHÍNH ---
+            const mainContent = document.querySelector('main[data-filter-type]');
+            if (mainContent) {
+                formData.append('filter_type', mainContent.dataset.filterType);
+                formData.append('filter_slug', mainContent.dataset.filterSlug);
+            }
             // Thêm giá trị của select sắp xếp
             formData.append('sort_by', document.getElementById('sort-by').value);
 

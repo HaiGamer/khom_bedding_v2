@@ -38,7 +38,7 @@ $page_title = "Đăng nhập Quản trị";
          </form>
       </div>
    </div>
-   <script src="/assets/js/admin-login.js"></script>
+   <script src="/admin/assets/js/admin-login.js"></script>
 </body>
 
 </html>

@@ -48,16 +48,7 @@ $total_orders = $count_stmt->fetchColumn();
 $total_pages = ceil($total_orders / $limit);
 
 // Hàm tiện ích để lấy badge trạng thái
-function get_status_badge($status) {
-    switch ($status) {
-        case 'pending': return ['class' => 'bg-warning text-dark', 'text' => 'Chờ xử lý'];
-        case 'processing': return ['class' => 'bg-info text-dark', 'text' => 'Đang xử lý'];
-        case 'shipped': return ['class' => 'bg-primary', 'text' => 'Đang giao'];
-        case 'completed': return ['class' => 'bg-success', 'text' => 'Đã hoàn thành'];
-        case 'cancelled': return ['class' => 'bg-danger', 'text' => 'Đã hủy'];
-        default: return ['class' => 'bg-secondary', 'text' => 'Không xác định'];
-    }
-}
+require_once __DIR__ . '/core/helpers.php';
 ?>
 
 <div class="p-4">
