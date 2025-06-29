@@ -93,9 +93,27 @@ $page_description = isset($page_description) ? $page_description : 'Chuyên cung
                   <li><a href="/contact.html">Liên Hệ</a></li>
                   <li class="dropdown">
                      <a href="/account.html">Tài Khoản <i class="bi bi-chevron-down"></i></a>
-                     <ul class="dropdown-menu">
-                        <li><a href="/auth.html">Đăng Nhập</a></li>
-                        <li><a href="/auth.html#register">Đăng Ký</a></li>
+                     <ul class="dropdown-menu dropdown-menu-end">
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                        <li>
+                           <h6 class="dropdown-header">Xin chào,
+                              <?php echo htmlspecialchars($_SESSION['user_full_name']); ?></h6>
+                        </li>
+                        <li><a class="dropdown-item" href="/account.html">Tài khoản của tôi</a></li>
+
+                        <?php if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin'): ?>
+                        <li><a class="dropdown-item" href="/admin/">Trang Admin</a></li>
+                        <?php endif; ?>
+
+                        <li>
+                           <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="/logout.php">Đăng Xuất</a></li>
+
+                        <?php else: ?>
+                        <li><a class="dropdown-item" href="/auth.html">Đăng Nhập</a></li>
+                        <li><a class="dropdown-item" href="/auth.html#register">Đăng Ký</a></li>
+                        <?php endif; ?>
                      </ul>
                   </li>
                </ul>

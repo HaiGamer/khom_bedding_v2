@@ -32,3 +32,11 @@ RewriteRule ^category/([^/]+)\.html$ products.php?category=$1 [L,QSA]
 RewriteRule ^account-addresses\.html$ account-addresses.php [L,QSA]
 RewriteRule ^account-orders\.html$ account-orders.php [L,QSA]
 RewriteRule ^account-order-detail\.html$ account-order-detail.php [L,QSA]
+RewriteRule ^account-order-detail\.html$ account-order-detail.php [L,QSA]
+RewriteRule ^checkout\.html$ checkout.php [L,QSA]
+RewriteRule ^checkout\.html$ checkout.php [L,QSA]
+RewriteRule ^thank-you\.html$ thank-you.php [L,QSA]
+
+# Thêm quy tắc cho admin
+RewriteRule ^admin/?$ admin/index.php [L,QSA]
+RewriteRule ^admin/login/?$ admin/login.php [L,QSA]

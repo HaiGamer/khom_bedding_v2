@@ -44,26 +44,41 @@ $product_images = $stmt_images->fetchAll(PDO::FETCH_COLUMN);
 $page_title = htmlspecialchars($product['name']) . ' - Khóm Bedding';
 $page_description = htmlspecialchars($product['short_description']);
 
-// 5. TẠO DỮ LIỆU CÓ CẤU TRÚC (STRUCTURED DATA - SCHEMA.ORG) CHO SẢN PHẨM
-$stmt_default_variant = $pdo->prepare("SELECT sku, price, original_price, stock_quantity FROM product_variants WHERE product_id = ? AND is_default = 1");
-$stmt_default_variant->execute([$product['id']]);
-$default_variant = $stmt_default_variant->fetch();
+// === PHẦN SỬA LỖI: LẤY THÔNG TIN PHIÊN BẢN BAN ĐẦU MỘT CÁCH AN TOÀN ===
+// Truy vấn này sẽ ưu tiên lấy phiên bản mặc định (is_default=1), nếu không có, nó sẽ lấy phiên bản đầu tiên được tạo.
+$stmt_initial_variant = $pdo->prepare("SELECT sku, price, original_price, stock_quantity FROM product_variants WHERE product_id = ? ORDER BY is_default DESC, id ASC LIMIT 1");
+$stmt_initial_variant->execute([$product['id']]);
+$initial_variant = $stmt_initial_variant->fetch(PDO::FETCH_ASSOC);
 
+// Khởi tạo các biến với giá trị rỗng để tránh lỗi nếu sản phẩm không có phiên bản nào
+$sku_for_schema = $product['id'];
+$price_for_schema = "0";
+$availability_for_schema = "https://schema.org/OutOfStock";
+
+// Chỉ gán lại nếu tìm thấy một phiên bản
+if ($initial_variant) { 
+    $sku_for_schema = $initial_variant['sku'] ?? $product['id'];
+    $price_for_schema = $initial_variant['price'] ?? "0";
+    $availability_for_schema = ($initial_variant['stock_quantity'] > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+}
+// === KẾT THÚC PHẦN SỬA LỖI ===
+
+// 5. TẠO DỮ LIỆU CÓ CẤU TRÚC (STRUCTURED DATA)
 $schema = [
     "@context" => "https://schema.org/",
     "@type" => "Product",
     "name" => $product['name'],
     "image" => count($product_images) > 0 ? $product_images : [],
     "description" => $product['short_description'],
-    "sku" => $default_variant['sku'] ?? $product['id'],
+    "sku" => $sku_for_schema,
     "mpn" => $product['id'],
     "brand" => ["@type" => "Brand", "name" => "Khóm Bedding"],
     "offers" => [
         "@type" => "Offer",
         "url" => "http://localhost/san-pham/". $product['slug'] .".html",
         "priceCurrency" => "VND",
-        "price" => $default_variant['price'] ?? "0",
-        "availability" => ($default_variant['stock_quantity'] > 0) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "price" => $price_for_schema,
+        "availability" => $availability_for_schema,
         "itemCondition" => "https://schema.org/NewCondition"
     ]
 ];
@@ -441,7 +456,6 @@ $structured_variants = array_values($variants_by_id);
 const productVariantsData = <?php echo json_encode($structured_variants, JSON_UNESCAPED_UNICODE); ?>;
 const productImagesData = <?php echo json_encode($product_images, JSON_UNESCAPED_UNICODE); ?>;
 </script>
-<script src="/assets/js/variant-selector.js"></script>
 <script src="/assets/js/product-detail.js"></script>
 <?php 
 include 'templates/footer.php'; 

@@ -50,10 +50,11 @@ try {
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['user_full_name'] = $user['full_name'];
     $_SESSION['user_role'] = $user['role'];
+    $_SESSION['user_email'] = $user['email'];
     
     // Trả về thông báo thành công và đường dẫn để chuyển hướng
     json_response(true, 'Đăng nhập thành công! Đang chuyển hướng...', [
-        'redirect_url' => '/account.html' // Chuyển hướng đến trang tài khoản
+        'redirect_url' => '/account-orders.html' // Chuyển hướng đến trang tài khoản
     ]);
 
 } catch (PDOException $e) {

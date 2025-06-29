@@ -369,7 +369,7 @@ aside h4 {
    * Ta đặt giá trị là 140px để đảm bảo có khoảng trống thoải mái.
   */
   #products-main-header {
-    scroll-margin-top: 150px;
+    scroll-margin-top: 250px;
   }
 }
 
@@ -618,4 +618,34 @@ aside h4 {
 }
 .order-items-table td, .order-items-table th {
     vertical-align: middle;
+}
+/* --- TRANG GIỎ HÀNG - GIAO DIỆN MOBILE --- */
+.cart-item .card-title {
+    line-height: 1.2;
+    margin-bottom: 0.25rem;
+}
+.cart-item .variant-attributes {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    line-height: 1.3;
+}
+.cart-item .price-per-item {
+    font-size: 1.1rem;
+}
+/* --- SỬA LỖI HEADER STICKY CHE TAB TRÊN TRANG AUTH --- */
+/* * Áp dụng một khoảng đệm "ảo" phía trên các tab-pane
+ * để khi trình duyệt cuộn tới, nó không bị header che mất.
+*/
+.auth-wrapper .tab-pane {
+  /* Khoảng đệm cho header trên di động (header thấp hơn) */
+  scroll-margin-top: 80px;
+}
+
+@media (min-width: 992px) {
+  .auth-wrapper .tab-pane {
+    /* Khoảng đệm cho header trên desktop (header 2 tầng, cao hơn) */
+    scroll-margin-top: 250px;
+  }
 }

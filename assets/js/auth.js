@@ -1,5 +1,26 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+    // =============================================
+    // === THÊM VÀO: LOGIC XỬ LÝ HASH TRÊN URL ===
+    // =============================================
+    // Kích hoạt tab dựa trên hash của URL (ví dụ: #register)
+    const urlHash = window.location.hash;
+    if (urlHash) {
+        const tabToActivate = document.querySelector(`#authTabs button[data-bs-target="${urlHash}"]`);
+        if(tabToActivate) {
+            const tab = new bootstrap.Tab(tabToActivate);
+            tab.show();
+        }
+    }
+    // Khi click vào các tab, cập nhật lại hash trên URL
+    document.querySelectorAll('#authTabs button').forEach(button => {
+        button.addEventListener('shown.bs.tab', event => {
+            const hash = event.target.dataset.bsTarget;
+            history.pushState(null, null, hash);
+        });
+    });
+    // =============================================
+
     // Xử lý form đăng nhập
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
@@ -80,5 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
         alertBox.textContent = '';
         alertBox.classList.add('d-none');
     }
+
+    
 
 });

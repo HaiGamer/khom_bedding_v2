@@ -1,21 +1,50 @@
-// File: /assets/js/main.js (phiên bản mới)
+/**
+ * main.js - Chứa các script chung cho toàn bộ trang người dùng
+ */
 
-// Đưa hàm ra ngoài DOMContentLoaded để có thể truy cập toàn cục
+// =============================================
+// === CÁC HÀM TOÀN CỤC (GLOBAL FUNCTIONS) ===
+// =============================================
+
+/**
+ * Hiển thị thông báo toast của Bootstrap.
+ * @param {string} title Tiêu đề của thông báo.
+ * @param {string} message Nội dung thông báo.
+ * @param {boolean} isSuccess Trạng thái thành công/thất bại để hiển thị icon.
+ */
 function showToast(title, message, isSuccess = true) {
     const toastLiveExample = document.getElementById('liveToast');
+    if (!toastLiveExample) return;
+    
+    const toastIcon = toastLiveExample.querySelector('.toast-header i');
     const toast = new bootstrap.Toast(toastLiveExample);
+    
     document.getElementById('toast-title').textContent = title;
     document.getElementById('toast-body').textContent = message;
+
+    // Cập nhật icon dựa trên trạng thái
+    if (isSuccess) {
+        toastIcon.className = 'bi bi-check-circle-fill text-success me-2';
+    } else {
+        toastIcon.className = 'bi bi-exclamation-triangle-fill text-danger me-2';
+    }
+    
     toast.show();
 }
 
+/**
+ * Gửi yêu cầu thêm sản phẩm vào giỏ hàng qua API.
+ * @param {number} variantId ID của phiên bản sản phẩm.
+ * @param {number} quantity Số lượng.
+ */
 function addToCart(variantId, quantity) {
     const formData = new FormData();
     formData.append('action', 'add');
     formData.append('variant_id', variantId);
     formData.append('quantity', quantity);
 
-    fetch('/api/cart-handler.php', {
+    // CẬP NHẬT: Sử dụng đường dẫn API đã được tổ chức lại
+    fetch('/api/cart/cart-handler.php', {
         method: 'POST',
         body: formData
     })
@@ -36,33 +65,38 @@ function addToCart(variantId, quantity) {
     });
 }
 
-// Gắn các hàm vào đối tượng window để các file script khác có thể gọi
+// Gắn các hàm vào đối tượng `window` để các file script khác có thể gọi
 window.showToast = showToast;
 window.addToCart = addToCart;
 
 
+// =============================================
+// === CÁC LOGIC CHẠY KHI TRANG TẢI XONG ===
+// =============================================
 document.addEventListener("DOMContentLoaded", function() {
     
-    const quickAddModal = new bootstrap.Modal(document.getElementById('quick-add-modal'));
-    const quickAddModalBody = document.getElementById('quick-add-modal-body');
-
+    // --- XỬ LÝ MODAL THÊM NHANH SẢN PHẨM ---
     document.addEventListener('click', function(e) {
         const quickAddButton = e.target.closest('.btn-add-to-cart');
         if (quickAddButton) {
             e.preventDefault();
+            
+            const quickAddModalEl = document.getElementById('quick-add-modal');
+            if (!quickAddModalEl) return;
+
+            // SỬA LỖI: Chỉ khởi tạo modal ngay khi cần dùng
+            const quickAddModal = new bootstrap.Modal(quickAddModalEl);
+            const quickAddModalBody = document.getElementById('quick-add-modal-body');
             const slug = quickAddButton.dataset.slug;
 
-            // Hiển thị modal với spinner
             quickAddModalBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border"></div></div>';
             quickAddModal.show();
             
-            // Gọi API để lấy thông tin sản phẩm
             fetch(`/api/products/get-variant-info.php?slug=${slug}`)
                 .then(response => response.json())
                 .then(data => {
                     if(data.success) {
-                        // BƯỚC 1: Render cấu trúc HTML mới, phức tạp hơn cho modal
-                        // Cấu trúc này phải có các class/id giống với trang chi tiết sản phẩm
+                        // Render nội dung vào modal
                         quickAddModalBody.innerHTML = `
                             <div class="product-details">
                                 <div class="row">
@@ -71,39 +105,31 @@ document.addEventListener("DOMContentLoaded", function() {
                                     </div>
                                     <div class="col-md-7">
                                         <h4>${data.product.name}</h4>
-                                        <div class="product-sku text-muted small mb-2">SKU: N/A</div>
+                                        <div class="product-sku text-muted small mb-2"></div>
                                         <div class="product-price h3 text-danger">
                                             <span class="price-sale"></span>
                                             <span class="price-original"></span>
                                         </div>
                                         <hr>
                                         <div class="variant-options-container my-3"></div>
-                                        <div class="d-flex align-items-center gap-3">
+                                        <div class="d-flex align-items-center gap-3 mt-4">
                                             <div class="quantity-input">
-                                                <input type="number" class="form-control text-center" value="1" min="1" style="width: 60px;">
+                                                <input type="number" class="form-control text-center" value="1" min="1" style="width: 70px;">
                                             </div>
-                                            <button class="btn btn-primary btn-add-to-cart-submit">Thêm vào giỏ hàng</button>
+                                            <button class="btn btn-primary flex-grow-1 btn-add-to-cart-submit">Thêm vào giỏ hàng</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         `;
-                        
-                        // BƯỚC 2: Khởi tạo "bộ não" cho modal
-                        new VariantSelector(quickAddModalBody, data.variants);
-
+                        // Khởi tạo "bộ não" VariantSelector cho modal
+                        new VariantSelector(quickAddModalBody.querySelector('.product-details'), data.variants);
                     } else {
                         quickAddModalBody.innerHTML = `<p class="text-danger">${data.message}</p>`;
                     }
                 });
         }
     });
-
-    // Hàm format tiền tệ (có thể đã có)
-    function formatCurrency(number) {
-        if (isNaN(parseFloat(number))) return '';
-        return parseFloat(number).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
-    }
 
     //-----------------------------------------------------
     // LOGIC CHO TRANG DANH SÁCH SẢN PHẨM (products.php)

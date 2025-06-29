@@ -2,7 +2,7 @@
 $page_title = "Đăng Nhập & Đăng Ký";
 $page_description = "Tạo tài khoản hoặc đăng nhập để hưởng nhiều ưu đãi và quản lý đơn hàng tại Khóm Bedding.";
 
-// Nếu người dùng đã đăng nhập, chuyển hướng họ về trang tài khoản
+session_start(); // Di chuyển session_start lên đầu để có thể dùng trong logic chuyển hướng
 if (isset($_SESSION['user_id'])) {
     header('Location: /account.html');
     exit();
@@ -17,17 +17,17 @@ include 'templates/header.php';
          <div class="auth-wrapper">
             <ul class="nav nav-pills nav-fill mb-4" id="authTabs" role="tablist">
                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane"
+                  <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#login"
                      type="button" role="tab">Đăng Nhập</button>
                </li>
                <li class="nav-item" role="presentation">
-                  <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane"
+                  <button class="nav-link" id="register-tab" data-bs-toggle="tab" data-bs-target="#register"
                      type="button" role="tab">Đăng Ký</button>
                </li>
             </ul>
 
             <div class="tab-content" id="authTabsContent">
-               <div class="tab-pane fade show active" id="login-pane" role="tabpanel">
+               <div class="tab-pane fade show active" id="login" role="tabpanel">
                   <h3 class="text-center mb-4">Chào mừng trở lại!</h3>
                   <form id="login-form">
                      <div id="login-alert" class="alert d-none"></div>
@@ -45,7 +45,7 @@ include 'templates/header.php';
                   </form>
                </div>
 
-               <div class="tab-pane fade" id="register-pane" role="tabpanel">
+               <div class="tab-pane fade" id="register" role="tabpanel">
                   <h3 class="text-center mb-4">Tạo tài khoản mới</h3>
                   <form id="register-form">
                      <div id="register-alert" class="alert d-none"></div>
@@ -80,10 +80,6 @@ include 'templates/header.php';
    </div>
 </div>
 
-<?php 
-// Nhúng file JS chuyên dụng cho trang này
-// Chúng ta sẽ tạo file này ở bước tiếp theo
-?>
 <script src="/assets/js/auth.js"></script>
 <?php
 include 'templates/footer.php'; 
