@@ -56,8 +56,10 @@ $page_description = $page_description ?? 'Chuyên cung cấp các sản phẩm c
                </a>
                <div class="header-top-right d-flex align-items-center">
                   <form action="/search.html" method="GET" class="search-form me-3">
-                     <input type="text" name="q" placeholder="Tìm kiếm sản phẩm..." required>
+                     <input type="text" id="header-search-input" name="q" placeholder="Tìm kiếm sản phẩm..." required
+                        autocomplete="off">
                      <button type="submit"><i class="bi bi-search"></i></button>
+                     <div id="header-search-results" class="header-search-results-box"></div>
                   </form>
                   <div class="header-hotline me-3">
                      <i class="bi bi-telephone-fill"></i>
@@ -148,19 +150,20 @@ $page_description = $page_description ?? 'Chuyên cung cấp các sản phẩm c
       </div>
    </div>
 
-   <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+   <div class="modal fade" id="searchModal" tabindex="-1">
+      <div class="modal-dialog modal-fullscreen">
          <div class="modal-content">
             <div class="modal-header">
-               <h5 class="modal-title" id="searchModalLabel">Tìm kiếm sản phẩm</h5>
-               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+               <h5 class="modal-title">Tìm kiếm</h5>
+               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-               <form action="/search.html" method="GET" class="d-flex">
-                  <input class="form-control me-2" type="search" name="q" placeholder="Nhập tên sản phẩm..."
-                     aria-label="Search" required>
-                  <button class="btn btn-primary" type="submit">Tìm</button>
+               <form action="/search.html" method="GET" class="d-flex mb-3">
+                  <input type="text" id="mobile-search-input" class="form-control form-control-lg" name="q"
+                     placeholder="Nhập tên sản phẩm..." required autocomplete="off">
+                  <button type="submit" class="btn btn-primary ms-2">Tìm</button>
                </form>
+               <div id="mobile-search-results" class="mobile-search-results-box"></div>
             </div>
          </div>
       </div>

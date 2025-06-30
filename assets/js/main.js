@@ -208,50 +208,68 @@ document.addEventListener("DOMContentLoaded", function() {
         function fetchProducts() {
             const container = document.getElementById('product-list-container');
             const paginationContainer = document.getElementById('pagination-container');
+            const mainContent = document.querySelector('main[data-filter-type]');
             
-            // Hiển thị spinner loading
-            container.innerHTML = `<div class="col-12 text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div></div>`;
+            container.innerHTML = `<div class="col-12 text-center p-5"><div class="spinner-border"></div></div>`;
             paginationContainer.innerHTML = '';
 
-            // Lấy dữ liệu từ form trên desktop (ưu tiên) hoặc mobile
-            const form = document.getElementById('filter-form');
-            const formData = new FormData(form);
-            // --- LOGIC MỚI: LẤY VÀ GỬI THAM SỐ LỌC CHÍNH ---
-            const mainContent = document.querySelector('main[data-filter-type]');
-            if (mainContent) {
-                formData.append('filter_type', mainContent.dataset.filterType);
-                formData.append('filter_slug', mainContent.dataset.filterSlug);
-            }
-            // Thêm giá trị của select sắp xếp
-            formData.append('sort_by', document.getElementById('sort-by').value);
+            const formData = new FormData(document.getElementById('filter-form'));
+            
+            // Xác định API và trang đích dựa trên filter-type
+            let apiUrl = '/api/filter-products.php';
+            let targetUrl = '/products.html'; // URL mặc định
+            let searchTermForDisplay = ''; // Biến để lưu search term cho hiển thị URL
 
-            // Lấy trang hiện tại (từ data attribute của pagination)
+            if (mainContent) {
+                const filterType = mainContent.dataset.filterType;
+                formData.append('filter_type', filterType);
+                
+                if (filterType === 'search') {
+                    apiUrl = '/api/search-filter-products.php';
+                    targetUrl = '/search.html';
+                    const searchTerm = mainContent.dataset.searchTerm;
+                    formData.append('search_term', searchTerm);
+                    searchTermForDisplay = searchTerm; // Lưu lại để hiển thị trên URL
+                } else if (mainContent.dataset.filterSlug) {
+                    // Xây dựng lại URL cho category và collection
+                    targetUrl = `/${filterType}/${mainContent.dataset.filterSlug}.html`;
+                    formData.append('filter_slug', mainContent.dataset.filterSlug);
+                }
+            }
+            
+            // Thêm các tham số khác
+            formData.append('sort_by', document.getElementById('sort-by').value);
             const currentPage = document.querySelector('#pagination-container .page-item.active a')?.dataset.page || 1;
             formData.append('page', currentPage);
+            
+            // Tạo URL để fetch
+            const fetchParams = new URLSearchParams(formData).toString();
+            const fetchUrl = `${window.location.origin}${apiUrl}?${fetchParams}`;
 
-            // Chuyển FormData thành URL query string
-            const params = new URLSearchParams(formData).toString();
-            const url = `${window.location.origin}/api/filter-products.php?${params}`;
-
-            // Gửi yêu cầu AJAX
-            fetch(url)
+            fetch(fetchUrl)
                 .then(response => response.json())
                 .then(data => {
-                    // Cập nhật lưới sản phẩm và phân trang
                     container.innerHTML = data.product_html;
                     paginationContainer.innerHTML = data.pagination_html;
                     
-                    // Cập nhật số lượng sản phẩm (nếu có)
-                    // document.getElementById('product-count').textContent = data.total_products;
+                    // SỬA LỖI: Cập nhật URL trình duyệt cho đúng trang
+                    // Tạo một bản sao của params để làm đẹp URL, loại bỏ các trường không cần thiết
+                    const displayParams = new URLSearchParams(formData);
+                    displayParams.delete('filter_type');
+                    displayParams.delete('filter_slug');
+                    displayParams.delete('search_term');
+
+                    const searchInput = document.querySelector('input[name="q"]');
+                    if (searchInput && searchInput.value) {
+                         displayParams.set('q', searchInput.value);
+                    } 
                     
-                    // Cập nhật URL trình duyệt
-                    history.pushState(null, '', `/products.html?${params}`);
                     
-                    // Cuộn lên đầu khu vực tiêu đề để người dùng thấy cả bộ sắp xếp
-                    const headerElement = document.getElementById('products-main-header');
-                    if (headerElement) {
-                        headerElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    const finalUrl = `${targetUrl}?${displayParams.toString()}`;
+                    history.pushState(null, '', finalUrl);
+                    
+                    // Cuộn lên đầu
+                    document.getElementById('products-main-header')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 })
                 .catch(error => {
                     console.error('Error fetching products:', error);
@@ -285,4 +303,143 @@ document.addEventListener("DOMContentLoaded", function() {
         fetchProducts();
     }
 
+    // =============================================
+    // === LOGIC MỚI: LIVE SEARCH CHO HEADER ===
+    // =============================================
+    const searchInput = document.getElementById('header-search-input');
+    const searchResultsBox = document.getElementById('header-search-results');
+    let searchTimeout;
+
+    if (searchInput && searchResultsBox) {
+        searchInput.addEventListener('keyup', function() {
+            clearTimeout(searchTimeout);
+            const searchTerm = this.value;
+
+            if (searchTerm.length < 2) {
+                searchResultsBox.style.display = 'none';
+                return;
+            }
+
+            // Chờ 300ms sau khi người dùng ngừng gõ mới gửi yêu cầu
+            searchTimeout = setTimeout(() => {
+                fetch(`/api/live-search.php?q=${searchTerm}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            let html = '<ul class="list-group list-group-flush">';
+                            data.forEach(product => {
+                                const price = new Intl.NumberFormat('vi-VN').format(product.price) + 'đ';
+                                html += `
+                                    <li class="list-group-item">
+                                        <a href="/san-pham/${product.slug}.html" class="d-flex align-items-center text-decoration-none">
+                                            <img src="${product.image_url || '/assets/images/placeholder.png'}" class="me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-dark">${product.name}</div>
+                                                <div class="text-danger">${price}</div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                `;
+                            });
+                            html += '</ul>';
+                            searchResultsBox.innerHTML = html;
+                            searchResultsBox.style.display = 'block';
+                        } else {
+                            searchResultsBox.style.display = 'none';
+                        }
+                    });
+            }, 300);
+        });
+
+        // Ẩn kết quả khi click ra ngoài
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target)) {
+                searchResultsBox.style.display = 'none';
+            }
+        });
+    }
+    // =======================================================
+    // === LOGIC MỚI: LIVE SEARCH CHO MOBILE (TRONG MODAL) ===
+    // =======================================================
+    const mobileSearchInput = document.getElementById('mobile-search-input');
+    const mobileSearchResultsBox = document.getElementById('mobile-search-results');
+    let mobileSearchTimeout;
+
+    if (mobileSearchInput && mobileSearchResultsBox) {
+        mobileSearchInput.addEventListener('keyup', function() {
+            clearTimeout(mobileSearchTimeout);
+            const searchTerm = this.value;
+
+            if (searchTerm.length < 2) {
+                mobileSearchResultsBox.innerHTML = ''; // Xóa kết quả cũ
+                return;
+            }
+
+            mobileSearchTimeout = setTimeout(() => {
+                fetch(`/api/live-search.php?q=${encodeURIComponent(searchTerm)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        let html = '';
+                        if (data.length > 0) {
+                            html = '<ul class="list-group list-group-flush">';
+                            data.forEach(product => {
+                                const price = new Intl.NumberFormat('vi-VN').format(product.price) + 'đ';
+                                html += `
+                                    <li class="list-group-item">
+                                        <a href="/san-pham/${product.slug}.html" class="d-flex align-items-center text-decoration-none">
+                                            <img src="${product.image_url || '/assets/images/placeholder.png'}" class="me-3" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold text-dark">${product.name}</div>
+                                                <div class="text-danger">${price}</div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                `;
+                            });
+                            html += '</ul>';
+                        } else {
+                            html = '<p class="text-center text-muted mt-3">Không tìm thấy sản phẩm nào.</p>';
+                        }
+                        mobileSearchResultsBox.innerHTML = html;
+                    });
+            }, 300);
+        });
+    }
+
+
+    const mainContent = document.querySelector('main[data-filter-type]');
+    let apiUrl = '/api/filter-products.php'; // API mặc định
+    let targetUrl = '/products.html'; // Trang mặc định
+
+    if (mainContent) {
+        const formData = new FormData();
+        const filterType = mainContent.dataset.filterType;
+        formData.append('filter_type', filterType);
+        
+        // === SỬA LẠI LOGIC Ở ĐÂY ===
+        if (filterType === 'search') {
+            apiUrl = '/api/search-filter-products.php'; // Gọi API tìm kiếm
+            targetUrl = '/search.html';
+            formData.append('search_term', mainContent.dataset.searchTerm);
+        } else if (filterType === 'collection') {
+            targetUrl = `/collection/${mainContent.dataset.filterSlug}.html`;
+            formData.append('filter_slug', mainContent.dataset.filterSlug);
+        } else if (filterType === 'category') {
+             targetUrl = `/category/${mainContent.dataset.filterSlug}.html`;
+             formData.append('filter_slug', mainContent.dataset.filterSlug);
+        }
+    }
+    const params = new URLSearchParams(formData).toString();
+    // Sử dụng biến apiUrl đã được chọn ở trên
+    const url = `${window.location.origin}${apiUrl}?${params}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // ...
+            // Sửa lại cách cập nhật URL
+            history.pushState(null, '', `${targetUrl}?${params.replace(/&?filter_type=[^&]*/g, '').replace(/&?filter_slug=[^&]*/g, '').replace(/&?search_term=[^&]*/g, '')}`);
+            // ...
+        });
+   
 });
