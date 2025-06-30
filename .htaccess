@@ -38,6 +38,7 @@ RewriteRule ^account-order-detail\.html$ account-order-detail.php [L,QSA]
 RewriteRule ^account-order-detail\.html$ account-order-detail.php [L,QSA]
 RewriteRule ^checkout\.html$ checkout.php [L,QSA]
 RewriteRule ^thank-you\.html$ thank-you.php [L,QSA]
+RewriteRule ^contact\.html$ contact.php [L,QSA]
 
 # Thêm quy tắc cho admin
 RewriteRule ^admin/?$ admin/index.php [L,QSA]

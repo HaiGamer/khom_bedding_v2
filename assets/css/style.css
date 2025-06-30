@@ -920,3 +920,72 @@ aside h4 {
 .header-search-results-box .list-group-item:last-child {
     border-bottom: none;
 }
+/* ============================================= */
+/* === CSS CHO TRANG LIÊN HỆ (contact.php) === */
+/* ============================================= */
+
+/* Cột thông tin liên hệ bên trái */
+.contact-info-wrapper h4 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+/* Tạo đường gạch chân trang trí cho tiêu đề */
+.contact-info-wrapper h4::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background-color: var(--color-accent);
+}
+
+.contact-info-wrapper .info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.contact-info-wrapper .info-item i {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    margin-right: 1rem;
+    margin-top: 0.25rem;
+}
+
+.contact-info-wrapper .info-item p {
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* Form liên hệ bên phải */
+.contact-form-card {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-radius: 8px;
+}
+
+.contact-form-card .form-label {
+    font-weight: 600;
+}
+
+.contact-form-card .form-control:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 0.25rem rgba(141, 171, 154, 0.25); /* Màu --color-secondary với độ mờ */
+}
+
+.contact-form-card button[type="submit"] {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    font-weight: 600;
+    padding: 0.75rem;
+    transition: background-color 0.3s ease;
+}
+
+.contact-form-card button[type="submit"]:hover {
+    background-color: #c59461; /* Màu đậm hơn một chút của --color-accent */
+    border-color: #c59461;
+}
