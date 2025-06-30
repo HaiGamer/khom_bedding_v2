@@ -46,6 +46,15 @@ $stmt_collections = $pdo->query("
 ");
 $homepage_collections = $stmt_collections->fetchAll(PDO::FETCH_ASSOC);
 
+// === LOGIC MỚI: LẤY 3 BÀI VIẾT MỚI NHẤT ĐỂ HIỂN THỊ RA TRANG CHỦ ===
+$stmt_posts = $pdo->query("
+    SELECT title, slug, excerpt, featured_image, created_at
+    FROM posts 
+    WHERE status = 'published' AND featured_image IS NOT NULL AND featured_image != '' 
+    ORDER BY created_at DESC 
+    LIMIT 3
+");
+$homepage_posts = $stmt_posts->fetchAll();
 
 
 // --- HÀM TÁI SỬ DỤNG ---
@@ -202,6 +211,44 @@ function render_product_card($product) {
       </div>
    </div>
 </section>
+
+
+<?php if (!empty($homepage_posts)): ?>
+<section class="homepage-blog py-5">
+   <div class="container">
+      <div class="section-title text-center mb-4">
+         <h2>Tin Tức & Cẩm Nang</h2>
+      </div>
+      <div class="row">
+         <?php foreach($homepage_posts as $post): ?>
+         <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 post-card">
+               <a href="/bai-viet/<?php echo htmlspecialchars($post['slug']); ?>.html">
+                  <img src="<?php echo htmlspecialchars($post['featured_image']); ?>" class="card-img-top"
+                     alt="<?php echo htmlspecialchars($post['title']); ?>">
+               </a>
+               <div class="card-body d-flex flex-column">
+                  <small class="text-muted mb-2"><?php echo date('d/m/Y', strtotime($post['created_at'])); ?></small>
+                  <h5 class="card-title">
+                     <a href="/bai-viet/<?php echo htmlspecialchars($post['slug']); ?>.html"
+                        class="text-dark text-decoration-none"><?php echo htmlspecialchars($post['title']); ?></a>
+                  </h5>
+                  <p class="card-text flex-grow-1"><?php echo htmlspecialchars($post['excerpt']); ?></p>
+                  <a href="/bai-viet/<?php echo htmlspecialchars($post['slug']); ?>.html"
+                     class="btn btn-link p-0 mt-auto">Đọc thêm <i class="bi bi-arrow-right"></i></a>
+               </div>
+            </div>
+         </div>
+         <?php endforeach; ?>
+      </div>
+      <div class="text-center mt-4">
+         <a href="/blog.html" class="btn btn-primary">Xem tất cả bài viết</a>
+      </div>
+   </div>
+</section>
+<?php endif; ?>
+
+
 
 <?php 
 include 'templates/footer.php'; 

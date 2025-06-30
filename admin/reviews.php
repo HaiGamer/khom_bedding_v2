@@ -21,14 +21,23 @@ $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT, ['options' => ['def
 $offset = ($page - 1) * $limit;
 
 
+// === NÂNG CẤP TRUY VẤN: Thêm LEFT JOIN và GROUP_CONCAT để lấy URL ảnh ===
 $sql = "
-    SELECT r.id, r.rating, r.comment, r.status, r.created_at, u.full_name, p.name as product_name, p.slug as product_slug
+    SELECT 
+        r.id, r.rating, r.comment, r.status, r.created_at, 
+        u.full_name, 
+        p.name as product_name, p.slug as product_slug,
+        GROUP_CONCAT(ri.image_url SEPARATOR ',') AS image_urls
     FROM reviews r
     JOIN users u ON r.user_id = u.id
     JOIN products p ON r.product_id = p.id
+    LEFT JOIN review_images ri ON r.id = ri.review_id
     WHERE r.status = ?
+    GROUP BY r.id
     ORDER BY r.created_at DESC
-"; // Bỏ LIMIT và OFFSET để phân trang sau
+";
+
+// Bỏ LIMIT và OFFSET để phân trang sau
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$status_filter]);
 $reviews = $stmt->fetchAll();
@@ -55,8 +64,8 @@ $reviews = $stmt->fetchAll();
                <tr>
                   <th>ID</th>
                   <th>Sản phẩm</th>
-                  <th>Người đánh giá</th>
                   <th>Nội dung</th>
+                  <th>Ảnh</th>
                   <th class="text-center">Trạng thái</th>
                   <th class="text-end">Hành động</th>
                </tr>
@@ -68,23 +77,36 @@ $reviews = $stmt->fetchAll();
                </tr>
                <?php else: ?>
                <?php foreach ($reviews as $review): ?>
-               <?php 
-                                // Tạo badge trạng thái cho đánh giá
-                                $review_status_info = ['class' => 'bg-secondary', 'text' => ucfirst($review['status'])];
-                                if($review['status'] == 'approved') $review_status_info = ['class' => 'bg-success', 'text' => 'Đã duyệt'];
-                                if($review['status'] == 'rejected') $review_status_info = ['class' => 'bg-danger', 'text' => 'Từ chối'];
-                                if($review['status'] == 'pending') $review_status_info = ['class' => 'bg-warning text-dark', 'text' => 'Chờ duyệt'];
-                            ?>
                <tr id="review-row-<?php echo $review['id']; ?>">
                   <td><?php echo $review['id']; ?></td>
-                  <td><a href="/san-pham/<?php echo $review['product_slug']; ?>.html" target="_blank"
-                        title="Xem sản phẩm"><?php echo htmlspecialchars($review['product_name']); ?></a></td>
-                  <td><?php echo htmlspecialchars($review['full_name']); ?></td>
+                  <td><a href="/san-pham/<?php echo $review['product_slug']; ?>.html"
+                        target="_blank"><?php echo htmlspecialchars($review['product_name']); ?></a></td>
                   <td style="min-width: 300px;">
+                     <strong><?php echo htmlspecialchars($review['full_name']); ?></strong>
                      <div class="review-stars" data-rating="<?php echo $review['rating']; ?>"></div>
-                     <p class="mb-0 small"><?php echo htmlspecialchars($review['comment']); ?></p>
+                     <p class="mb-0 small fst-italic">"<?php echo htmlspecialchars($review['comment']); ?>"</p>
                   </td>
+
+                  <td>
+                     <div class="d-flex flex-wrap gap-2">
+                        <?php if (!empty($review['image_urls'])): ?>
+                        <?php $images = explode(',', $review['image_urls']); ?>
+                        <?php foreach ($images as $img_url): ?>
+                        <a href="<?php echo htmlspecialchars($img_url); ?>" target="_blank">
+                           <img src="<?php echo htmlspecialchars($img_url); ?>" class="admin-review-thumbnail">
+                        </a>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
+                     </div>
+                  </td>
+
                   <td class="text-center">
+                     <?php 
+                                        $review_status_info = ['class' => 'bg-secondary', 'text' => ucfirst($review['status'])];
+                                        if($review['status'] == 'approved') $review_status_info = ['class' => 'bg-success', 'text' => 'Đã duyệt'];
+                                        if($review['status'] == 'rejected') $review_status_info = ['class' => 'bg-danger', 'text' => 'Từ chối'];
+                                        if($review['status'] == 'pending') $review_status_info = ['class' => 'bg-warning text-dark', 'text' => 'Chờ duyệt'];
+                                    ?>
                      <span
                         class="badge <?php echo $review_status_info['class']; ?> status-badge"><?php echo $review_status_info['text']; ?></span>
                   </td>

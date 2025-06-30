@@ -29,6 +29,7 @@ RewriteRule ^san-pham/([^/]+)\.html$ product-detail.php?slug=$1 [L,QSA]
 RewriteRule ^bai-viet/([^/]+)\.html$ post-detail.php?slug=$1 [L,QSA]
 RewriteRule ^category/([^/]+)\.html$ products.php?category=$1 [L,QSA]
 RewriteRule ^collection/([^/]+)\.html$ products.php?collection_slug=$1 [L,QSA]
+RewriteRule ^blog\.html$ blog.php [L,QSA]
 
 # Quy tắc cho các trang trong khu vực tài khoản
 RewriteRule ^account-addresses\.html$ account-addresses.php [L,QSA]
@@ -41,3 +42,4 @@ RewriteRule ^thank-you\.html$ thank-you.php [L,QSA]
 # Thêm quy tắc cho admin
 RewriteRule ^admin/?$ admin/index.php [L,QSA]
 RewriteRule ^admin/login/?$ admin/login.php [L,QSA]
+RewriteRule ^admin/customers/?$ admin/customers/index.php [L,QSA]

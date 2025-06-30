@@ -1,8 +1,21 @@
 <aside class="admin-sidebar">
-   <h3 class="text-center my-3">Khóm Admin</h3>
+   <h3 class="text-center my-3"><a class="nav-link" href="/admin/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+   </h3>
    <ul class="nav flex-column">
-      <li class="nav-item"><a class="nav-link" href="/admin/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
       <li class="nav-item"><a class="nav-link" href="/admin/orders.php"><i class="bi bi-receipt me-2"></i>Đơn hàng</a>
+      <li class="nav-item">
+         <a class="nav-link" data-bs-toggle="collapse" href="#customers-menu" role="button">
+            <i class="bi bi-people-fill me-2"></i>Khách Lẻ & Sỉ <i class="bi bi-chevron-down float-end"></i>
+         </a>
+         <div class="collapse" id="customers-menu">
+            <ul class="nav flex-column ms-3">
+               <li class="nav-item"><a class="nav-link" href="/admin/customers/">Tổng quan</a></li>
+               <li class="nav-item"><a class="nav-link" href="/admin/customers/customer-manage.php">Quản lý khách
+                     hàng</a></li>
+               <li class="nav-item"><a class="nav-link" href="/admin/customers/invoice-create.php">Tạo hóa đơn</a></li>
+            </ul>
+         </div>
+      </li>
       <li class="nav-item">
          <a class="nav-link" data-bs-toggle="collapse" href="#product-data-menu" role="button" aria-expanded="false"
             aria-controls="product-data-menu">
@@ -20,8 +33,15 @@
       </li>
       <li class="nav-item"><a class="nav-link" href="/admin/reviews.php"><i class="bi bi-star me-2"></i>Đánh giá</a>
       </li>
-      <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-pencil-square me-2"></i>Bài viết</a></li>
-      <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-graph-up me-2"></i>Báo cáo & Kho</a></li>
+      <li class="nav-item"><a class="nav-link" href="/admin/posts.php"><i class="bi bi-pencil-square me-2"></i>Bài
+            viết</a></li>
+
+      <ul class="nav flex-column ms-3">
+         <li class="nav-item"><a class="nav-link" href="/admin/inventory.php"><i class="bi bi-graph-up me-2"></i> Báo
+               cáo tồn kho</a></li>
+         <li class="nav-item"><a class="nav-link" href="/admin/stock-export-create.php">Tạo phiếu xuất kho</a></li>
+         <li class="nav-item"><a class="nav-link" href="/admin/stock-export-history.php">Lịch sử xuất kho</a></li>
+      </ul>
       <li class="nav-item">
          <hr>
       </li>
