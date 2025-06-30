@@ -85,8 +85,13 @@ $customers = $pdo->query("SELECT * FROM customers ORDER BY created_at DESC")->fe
                         </td>
                         <td><?= date('d/m/Y', strtotime($customer['created_at'])) ?></td>
                         <td>
-                           <button class="btn btn-sm btn-outline-primary btn-edit">Sửa</button>
-                           <button class="btn btn-sm btn-outline-danger btn-delete">Xóa</button>
+                           <a href="/admin/customers/customer-detail.php?id=<?= $customer['id'] ?>"
+                              class="btn btn-sm btn-outline-info" title="Xem chi tiết"><i
+                                 class="bi bi-eye-fill"></i></a>
+                           <button class="btn btn-sm btn-outline-primary btn-edit" title="Sửa nhanh"><i
+                                 class="bi bi-pencil-fill"></i></button>
+                           <button class="btn btn-sm btn-outline-danger btn-delete" title="Xóa"><i
+                                 class="bi bi-trash-fill"></i></button>
                         </td>
                      </tr>
                      <?php endforeach; ?>

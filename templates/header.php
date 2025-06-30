@@ -88,7 +88,7 @@ $page_description = isset($page_description) ? $page_description : 'Chuyên cung
                         <?php endforeach; ?>
                      </ul>
                   </li>
-                  <li><a href="/collections.html">Bộ Sưu Tập</a></li>
+                  <li><a href="/#homepage-collections">Bộ Sưu Tập</a></li>
                   <li><a href="/blog.html">Blog</a></li>
                   <li><a href="/contact.html">Liên Hệ</a></li>
                   <li class="dropdown">

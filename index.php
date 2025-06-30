@@ -56,6 +56,9 @@ $stmt_posts = $pdo->query("
 ");
 $homepage_posts = $stmt_posts->fetchAll();
 
+// === THÊM TRUY VẤN MỚI ĐỂ LẤY BANNER ===
+$stmt_banners = $pdo->query("SELECT * FROM banners WHERE is_active = 1 ORDER BY display_order ASC");
+$banners = $stmt_banners->fetchAll(PDO::FETCH_ASSOC);
 
 // --- HÀM TÁI SỬ DỤNG ---
 // Hàm để hiển thị một thẻ sản phẩm
@@ -100,22 +103,41 @@ function render_product_card($product) {
 // --- PHẦN GIAO DIỆN ---
 ?>
 
-<section class="hero-banner" style="background-color: #F4F1EA; padding: 6rem 0;">
-   <div class="container text-center">
-      <h1>Nâng tầm phòng ngủ</h1>
-      <p class="lead">Giá yêu thương cho mọi nhà.</p>
-      <a href="/products.html" class="btn btn-primary btn-lg"
-         style="background-color: #D4A373; border-color: #D4A373;">Khám Phá Ngay</a>
+<?php if (!empty($banners)): ?>
+<section class="hero-banner-section">
+   <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+         <?php foreach ($banners as $index => $banner): ?>
+         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?php echo $index; ?>"
+            class="<?php echo $index === 0 ? 'active' : ''; ?>"></button>
+         <?php endforeach; ?>
+      </div>
+
+      <div class="carousel-inner">
+         <?php foreach ($banners as $index => $banner): ?>
+         <div class="carousel-item <?php echo $index === 0 ? 'active' : ''; ?>">
+            <a href="<?php echo htmlspecialchars($banner['link_url'] ?? '#'); ?>">
+               <img src="<?php echo htmlspecialchars($banner['image_url_desktop']); ?>" class="d-block w-100"
+                  alt="<?php echo htmlspecialchars($banner['title']); ?>">
+            </a>
+         </div>
+         <?php endforeach; ?>
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+         <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+         <span class="carousel-control-next-icon" aria-hidden="true"></span>
+         <span class="visually-hidden">Next</span>
+      </button>
    </div>
 </section>
+<?php endif; ?>
 
 <section class="featured-products py-5">
    <div class="container">
-      <div class="section-title text-center mb-4">
-         <h2>Sản Phẩm Nổi Bật</h2>
-         <p>Khám phá những sản phẩm được yêu thích nhất</p>
-      </div>
-
       <ul class="nav nav-tabs justify-content-center" id="featuredTabs" role="tablist">
          <?php foreach ($featured_categories as $index => $cat): ?>
          <li class="nav-item" role="presentation">
@@ -164,7 +186,7 @@ function render_product_card($product) {
    </div>
 </section>
 <?php if (!empty($homepage_collections)): ?>
-<section class="homepage-collections">
+<section class="homepage-collections" id="homepage-collections">
    <div class="container">
       <div class="section-title text-center mb-4">
       </div>
@@ -241,7 +263,7 @@ function render_product_card($product) {
          </div>
          <?php endforeach; ?>
       </div>
-      <div class="text-center mt-4">
+      <div class="text-center mt-0">
          <a href="/blog.html" class="btn btn-primary">Xem tất cả bài viết</a>
       </div>
    </div>

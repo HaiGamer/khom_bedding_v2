@@ -40,7 +40,17 @@ $invoices = $pdo->query("SELECT * FROM invoices ORDER BY id DESC")->fetchAll(PDO
                <?php foreach ($invoices as $invoice): ?>
                <tr>
                   <th scope="row"><?= htmlspecialchars($invoice['invoice_code']) ?></th>
-                  <td><?= htmlspecialchars($invoice['customer_name']) ?></td>
+                  <td>
+                     <?php // === THAY ĐỔI Ở ĐÂY: Thêm liên kết nếu có customer_id === ?>
+                     <?php if (!empty($invoice['customer_id'])): ?>
+                     <a href="/admin/customers/customer-detail.php?id=<?= $invoice['customer_id'] ?>"
+                        title="Xem chi tiết khách hàng" target="_blank" class="btn btn-outline-primary fw-bold">
+                        <?= htmlspecialchars($invoice['customer_name']) ?>
+                     </a>
+                     <?php else: ?>
+                     <?= htmlspecialchars($invoice['customer_name']) ?>
+                     <?php endif; ?>
+                  </td>
                   <td><?= date('d/m/Y', strtotime($invoice['created_at'])) ?></td>
                   <td>
                      <?php 

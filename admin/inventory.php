@@ -28,16 +28,19 @@ $stmt = $pdo->query($sql);
 $all_variants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // === THAY ĐỔI 2: Cập nhật lại vòng lặp để lưu ảnh đại diện ===
-// Nhóm các phiên bản theo sản phẩm
+// Nhóm các phiên bản theo sản phẩm và tính tổng vốn
 $products = [];
+$grand_total_cost = 0; // Biến mới để tính tổng vốn
 foreach($all_variants as $variant) {
     $product_id = $variant['product_id'];
     if (!isset($products[$product_id])) {
         $products[$product_id]['product_name'] = $variant['product_name'];
-        $products[$product_id]['featured_image'] = $variant['featured_image']; // Lưu ảnh đại diện
+        $products[$product_id]['featured_image'] = $variant['featured_image'];
         $products[$product_id]['variants'] = [];
     }
     $products[$product_id]['variants'][] = $variant;
+    // Cộng dồn vào tổng vốn
+    $grand_total_cost += $variant['cost_price'] * $variant['stock_quantity'];
 }
 ?>
 
@@ -47,6 +50,17 @@ foreach($all_variants as $variant) {
       <a href="/admin/export-inventory.php" class="btn btn-info text-white">
          <i class="bi bi-file-earmark-excel-fill me-2"></i>Xuất Excel
       </a>
+   </div>
+
+   <div class="row">
+      <div class="col-12">
+         <div class="card bg-light border-primary mb-4">
+            <div class="card-body text-center">
+               <h6 class="card-title text-primary">TỔNG VỐN TỒN KHO</h6>
+               <p class="card-text fs-2 fw-bold"><?php echo number_format($grand_total_cost, 0, ',', '.'); ?>đ</p>
+            </div>
+         </div>
+      </div>
    </div>
 
    <div class="card">
