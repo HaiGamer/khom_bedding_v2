@@ -12,23 +12,25 @@
  * @param {string} message Nội dung thông báo.
  * @param {boolean} isSuccess Trạng thái thành công/thất bại để hiển thị icon.
  */
-function showToast(title, message, isSuccess = true) {
+// === NÂNG CẤP HÀM showToast ===
+function showToast(title, message, isSuccess = true, htmlContent = null) {
     const toastLiveExample = document.getElementById('liveToast');
     if (!toastLiveExample) return;
     
     const toastIcon = toastLiveExample.querySelector('.toast-header i');
+    const toastBody = document.getElementById('toast-body');
     const toast = new bootstrap.Toast(toastLiveExample);
     
     document.getElementById('toast-title').textContent = title;
-    document.getElementById('toast-body').textContent = message;
 
-    // Cập nhật icon dựa trên trạng thái
-    if (isSuccess) {
-        toastIcon.className = 'bi bi-check-circle-fill text-success me-2';
+    // Ưu tiên hiển thị HTML nếu có, nếu không thì hiển thị message thường
+    if (htmlContent) {
+        toastBody.innerHTML = htmlContent;
     } else {
-        toastIcon.className = 'bi bi-exclamation-triangle-fill text-danger me-2';
+        toastBody.textContent = message;
     }
-    
+
+    toastIcon.className = isSuccess ? 'bi bi-check-circle-fill text-success me-2' : 'bi bi-exclamation-triangle-fill text-danger me-2';
     toast.show();
 }
 
@@ -37,24 +39,31 @@ function showToast(title, message, isSuccess = true) {
  * @param {number} variantId ID của phiên bản sản phẩm.
  * @param {number} quantity Số lượng.
  */
+// === NÂNG CẤP HÀM addToCart ===
 function addToCart(variantId, quantity) {
     const formData = new FormData();
     formData.append('action', 'add');
     formData.append('variant_id', variantId);
     formData.append('quantity', quantity);
 
-    // CẬP NHẬT: Sử dụng đường dẫn API đã được tổ chức lại
-    fetch('/api/cart/cart-handler.php', {
-        method: 'POST',
-        body: formData
-    })
+    fetch('/api/cart/cart-handler.php', { method: 'POST', body: formData })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
             document.querySelectorAll('.cart-count').forEach(el => {
                 el.textContent = data.cart_item_count;
             });
-            showToast('Thành công', data.message);
+            
+            // Tạo nội dung HTML với nút bấm
+            const toastHtml = `
+                ${data.message} 
+                <div class="mt-2 pt-2 border-top">
+                    <a href="/cart.html" class="btn btn-primary btn-sm">Thanh toán</a>
+                </div>
+            `;
+            // Gọi hàm showToast với nội dung HTML
+            showToast('Thành công', '', true, toastHtml);
+
         } else {
             showToast('Thất bại', data.message, false);
         }
@@ -64,6 +73,7 @@ function addToCart(variantId, quantity) {
         showToast('Lỗi', 'Đã có lỗi xảy ra. Vui lòng thử lại.', false);
     });
 }
+
 
 // Gắn các hàm vào đối tượng `window` để các file script khác có thể gọi
 window.showToast = showToast;
@@ -130,6 +140,54 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
         }
     });
+
+    // =======================================================
+    // === TỰ ĐỘNG SAO CHÉP MENU SANG MOBILE (PHIÊN BẢN SỬA LỖI) ===
+    // =======================================================
+    const desktopNav = document.querySelector('.header-nav .nav-list');
+    const mobileNavContainer = document.getElementById('mobile-nav-list');
+
+    if (desktopNav && mobileNavContainer) {
+        // Sao chép HTML của menu desktop sang mobile
+        mobileNavContainer.innerHTML = desktopNav.innerHTML;
+        
+        // Lặp qua TẤT CẢ các thẻ <li> cấp 1 trong menu di động
+        mobileNavContainer.querySelectorAll(':scope > li').forEach(li => {
+            li.classList.add('nav-item'); // Thêm class nav-item cho tất cả
+            
+            const link = li.querySelector('a');
+            const submenu = li.querySelector('ul');
+
+            if (link) {
+                link.classList.add('nav-link'); // Thêm class nav-link cho tất cả
+            }
+
+            // Nếu đây là một dropdown (có menu con)
+            if (submenu) {
+                li.classList.add('mobile-dropdown'); // Thêm class để dễ nhận biết
+                
+                const submenuId = 'mobile-submenu-' + link.textContent.trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
+                
+                link.classList.add('mobile-dropdown-toggle');
+                link.dataset.bsToggle = 'collapse';
+                link.href = `#${submenuId}`;
+                
+                submenu.classList.remove('dropdown-menu', 'dropdown-menu-end');
+                submenu.classList.add('collapse', 'mobile-submenu-list');
+                submenu.id = submenuId;
+
+                // Thêm class nav-link vào các thẻ <a> con trong submenu
+                submenu.querySelectorAll('a').forEach(sublink => {
+                    sublink.classList.add('nav-link');
+                });
+                // === THÊM VÀO: LOGIC MỞ SẴN MENU "SẢN PHẨM" ===
+                if (link.textContent.trim() === 'Sản phẩm') {
+                    link.setAttribute('aria-expanded', 'true');
+                    submenu.classList.add('show'); // Thêm class 'show' của Bootstrap để xổ ra
+                }
+            }
+        });
+    }
 
     //-----------------------------------------------------
     // LOGIC CHO TRANG DANH SÁCH SẢN PHẨM (products.php)

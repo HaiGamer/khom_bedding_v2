@@ -9,6 +9,7 @@
       </div>
       <div class="toast-body" id="toast-body">
          Sản phẩm đã được thêm vào giỏ hàng!
+
       </div>
    </div>
 </div>

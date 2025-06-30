@@ -1,6 +1,7 @@
 /* --- BIẾN MÀU SẮC VÀ PHÔNG CHỮ --- */
 :root {
     --color-main: #F4F1EA;
+    --color-main2:#eaf0f4;
     --color-secondary: #8DAB9A;
     --color-accent: #D4A373;
     --color-text: #333333;
@@ -768,4 +769,84 @@ aside h4 {
     .hero-banner-section .carousel-item {
         aspect-ratio: 1170 / 495;
     }
+}
+
+/* ============================================= */
+/* === CSS HOÀN CHỈNH CHO MENU DI ĐỘNG (OFF-CANVAS) === */
+/* ============================================= */
+
+/* Style cho phần header của Off-canvas */
+.offcanvas-header {
+    background-color: var(--color-main);
+    border-bottom: 1px solid #e0e0e0;
+}
+.offcanvas-header .offcanvas-title {
+    font-family: var(--font-heading);
+    font-weight: 600;
+}
+
+/* Style cho phần thân của Off-canvas */
+.offcanvas-body {
+    padding: 0; /* Xóa padding mặc định */
+}
+
+/* Xóa các dấu chấm đầu dòng của thẻ UL */
+#mobile-nav-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+.offcanvas-body ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Định dạng chung cho TẤT CẢ các link trong menu */
+#mobile-nav-list .nav-link {
+    padding: 1rem 1.5rem;
+    color: var(--color-text);
+    font-weight: 600;
+    font-family: var(--font-heading);
+    text-decoration: none;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hiệu ứng khi di chuột vào bất kỳ mục nào */
+#mobile-nav-list .nav-link:hover {
+    background-color: var(--color-main);
+    color: var(--color-accent);
+}
+
+/* Style riêng cho mục cha có menu con */
+#mobile-nav-list .mobile-dropdown-toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Hiệu ứng xoay mũi tên */
+#mobile-nav-list .mobile-dropdown-toggle .bi-chevron-down {
+    transition: transform 0.3s ease;
+}
+#mobile-nav-list .mobile-dropdown-toggle[aria-expanded="true"] .bi-chevron-down {
+    transform: rotate(180deg);
+}
+
+/* Style cho các mục con trong menu xổ xuống */
+#mobile-nav-list .collapse .nav-link {
+    padding-left: 2.5rem; /* Thụt lề vào sâu hơn */
+    font-weight: 400;     /* Chữ mảnh hơn */
+    font-size: 0.95rem;
+    color: #555;
+    background-color: #f8f9fa; /* Màu nền hơi xám để phân biệt */
+    /*border-bottom: none; /* Bỏ đường kẻ cho mục con */
+}
+.dropdown-header {
+    font-weight: 600;
+    color: var(--color-text);
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    background-color: #f8f9fa; /* Màu nền hơi xám để phân biệt */
 }
