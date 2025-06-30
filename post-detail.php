@@ -1,4 +1,35 @@
 <?php
+// Bước 1: Kết nối CSDL trước tiên
+require_once __DIR__ . '/core/db_connect.php';
+// 1. Lấy slug sản phẩm từ URL
+$slug = $_GET['slug'] ?? null;
+if (!$slug) {
+    header("Location: /");
+    exit();
+}
+// Bước 2: Truy vấn sản phẩm dựa trên slug
+$stmt2 = $pdo->prepare("
+    SELECT 
+        p.*
+    FROM posts p 
+    WHERE p.slug = ?
+");
+$stmt2->execute([$slug]);
+$product2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+
+if (!$product2) {
+    http_response_code(404);
+    // Chúng ta vẫn include header và footer để trang lỗi có giao diện
+    $page_title = "404 Not Found";
+    include 'templates/header.php';
+    echo "<div class='container text-center py-5'><h1>404 Not Found</h1><p>Sản phẩm không tồn tại.</p></div>";
+    include 'templates/footer.php';
+    exit();
+}
+// Bước 3: Định nghĩa các biến SEO động
+$page_title = htmlspecialchars($product2['title']) . ' - Khóm Bedding';
+$page_description = htmlspecialchars(strip_tags($product2['excerpt'] ?? ''));
+
 include 'templates/header.php';
 
 $slug = $_GET['slug'] ?? null;

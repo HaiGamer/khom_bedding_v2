@@ -347,4 +347,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // === LOGIC MỚI: XỬ LÝ GALLERY VÀ MODAL ẢNH ĐÁNH GIÁ ===
+    const reviewImageModalEl = document.getElementById('review-image-modal');
+    if (reviewImageModalEl) {
+        const modalImageCol = document.getElementById('modal-image-col');
+        const modalAuthor = document.getElementById('modal-review-author');
+        const modalStars = document.getElementById('modal-review-stars');
+        const modalComment = document.getElementById('modal-review-comment');
+        const modalThumbnailsWrapper = document.querySelector('.modal-thumbnails-wrapper');
+        const modalThumbnailsContainer = document.querySelector('.modal-thumbnails');
+
+        // Lấy toàn bộ dữ liệu ảnh từ các thumbnail
+        const allReviewImagesData = Array.from(document.querySelectorAll('.customer-photo-item[data-image-src]')).map(item => ({
+            src: item.dataset.imageSrc,
+            rating: item.dataset.rating,
+            comment: item.dataset.comment,
+            author: item.dataset.author
+        }));
+        
+        let currentModalImageIndex = 0;
+
+        // Hàm để cập nhật nội dung modal
+        function updateModalContent(index) {
+            const data = allReviewImagesData[index];
+            if (!data) return;
+            
+            modalImageCol.innerHTML = `<img src="${data.src}" alt="Ảnh đánh giá của ${data.author}">`;
+            modalAuthor.textContent = data.author;
+            modalComment.textContent = data.comment;
+            
+            // Vẽ các ngôi sao
+            modalStars.innerHTML = '★'.repeat(data.rating) + '☆'.repeat(5 - data.rating);
+            modalStars.style.color = '#ffc107';
+
+            // Cập nhật thumbnail đang active
+            modalThumbnailsContainer.querySelector('.active')?.classList.remove('active');
+            modalThumbnailsContainer.querySelector(`img[data-index="${index}"]`)?.classList.add('active');
+        }
+
+        // Sự kiện được kích hoạt ngay trước khi modal hiển thị
+        reviewImageModalEl.addEventListener('show.bs.modal', function (event) {
+            const triggerElement = event.relatedTarget;
+            
+            // Nếu click vào nút "Xem thêm"
+            if (triggerElement.dataset.isGallery === 'true') {
+                modalThumbnailsWrapper.classList.remove('d-none');
+                modalThumbnailsContainer.innerHTML = allReviewImagesData.map((data, index) => 
+                    `<img src="${data.src}" class="modal-thumbnail-img" data-index="${index}">`
+                ).join('');
+                currentModalImageIndex = 0; // Bắt đầu từ ảnh đầu tiên
+            } 
+            // Nếu click vào một ảnh cụ thể
+            else {
+                modalThumbnailsWrapper.classList.add('d-none');
+                // Tìm vị trí của ảnh được click trong mảng dữ liệu
+                const clickedSrc = triggerElement.dataset.imageSrc;
+                const clickedIndex = allReviewImagesData.findIndex(item => item.src === clickedSrc);
+                currentModalImageIndex = clickedIndex >= 0 ? clickedIndex : 0;
+            }
+
+            updateModalContent(currentModalImageIndex);
+        });
+
+        // Sự kiện click vào các thumbnail bên trong modal
+        modalThumbnailsContainer.addEventListener('click', function(e) {
+            if (e.target.matches('.modal-thumbnail-img')) {
+                const index = parseInt(e.target.dataset.index, 10);
+                currentModalImageIndex = index;
+                updateModalContent(index);
+            }
+        });
+    }
+
 });

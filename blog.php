@@ -1,4 +1,5 @@
 <?php
+
 include 'templates/header.php';
 
 // --- LOGIC LẤY DỮ LIỆU VÀ PHÂN TRANG ---

@@ -425,10 +425,10 @@ aside h4 {
     font-weight: bold;
 }
 .product-price .price-original {
-    font-size: 1.2rem;
+    font-size: 1rem;
     text-decoration: line-through;
     color: #999;
-    margin-left: 15px;
+    margin-left: 5px;
 }
 .variant-group .btn {
     min-width: 80px;
@@ -850,3 +850,47 @@ aside h4 {
     font-size: 1rem;
     background-color: #f8f9fa; /* Màu nền hơi xám để phân biệt */
 }
+
+/* --- TRANG CHI TIẾT SP - GALLERY ẢNH ĐÁNH GIÁ --- */
+.customer-photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+.customer-photo-item {
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    background-color: #f0f0f0;
+}
+.customer-photo-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.customer-photo-item:hover img { transform: scale(1.1); }
+.customer-photo-item.view-more {
+    display: flex; align-items: center; justify-content: center;
+}
+.view-more-overlay {
+    font-weight: bold; color: #555; text-align: center;
+    font-size: 0.9rem;
+}
+
+/* MODAL XEM ẢNH ĐÁNH GIÁ */
+#review-image-modal .modal-review-info { position: relative; }
+#modal-image-col img {
+    width: 100%; height: auto;
+    max-height: 85vh; /* Chiều cao tối đa của ảnh */
+    object-fit: contain; background-color: #111;
+}
+.modal-thumbnails-wrapper { background-color: #f8f9fa; }
+.modal-thumbnails { overflow-x: auto; }
+.modal-thumbnail-img {
+    width: 60px; height: 60px;
+    object-fit: cover; border-radius: 5px;
+    border: 2px solid transparent; cursor: pointer;
+}
+.modal-thumbnail-img.active { border-color: var(--color-accent); }
