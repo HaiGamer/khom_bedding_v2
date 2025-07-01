@@ -120,8 +120,7 @@ $total_pages = ceil($total_posts / $limit);
    <?php endif; ?>
 </div>
 
+<script src="/admin/assets/js/admin-posts.js"></script>
 <?php
-// Chúng ta sẽ thêm file JS riêng cho trang này nếu cần các hành động AJAX (như xóa)
-// <script src="/admin/assets/js/admin-posts.js"></script>
 include __DIR__ . '/templates/footer.php';
 ?>

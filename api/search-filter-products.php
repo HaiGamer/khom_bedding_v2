@@ -16,7 +16,7 @@ function render_product_card_api($product) {
     }
 
     $html = '<div class="col-6 col-md-4 mb-4">';
-    $html .= '<div class="product-card h-100">';
+    $html .= '<div class="product-card h-100  d-flex flex-column">';
     $html .= '    <div class="product-card-img">';
     $html .= '        <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">';
     $html .= '            <img src="'. htmlspecialchars($product['image_url'] ?? '/assets/images/placeholder.png') .'" alt="'. htmlspecialchars($product['name']) .'">';
@@ -29,14 +29,19 @@ function render_product_card_api($product) {
     $html .= '            <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html" class="btn-action" title="Xem chi tiết"><i class="bi bi-eye"></i></a>';
     $html .= '        </div>';
     $html .= '    </div>';
-    $html .= '    <div class="product-card-body">';
+    $html .= '    <div class="product-card-body d-flex flex-column flex-grow-1">';
     $html .= '        <h3 class="product-card-title"><a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">'. htmlspecialchars($product['name']) .'</a></h3>';
-    $html .= '        <div class="product-card-price">';
+    $html .= '        <div class="product-card-price mt-auto">';
     $html .= '            <span class="price-sale">'. $price_formatted .'</span>';
     if ($original_price_formatted) {
         $html .= '            <span class="price-original">'. $original_price_formatted .'</span>';
     }
     $html .= '        </div>';
+     // === THÊM VÀO: HIỂN THỊ ĐÁNH GIÁ VÀ LƯỢT BÁN ===
+    $html .= '          <div class="product-card-stats mt-2">';
+    $html .= '              <span class="stat-item"><i class="bi bi-star-fill text-warning"></i> '. number_format((float)($product['review_count'] ?? 0), 1) .'</span>';
+    $html .= '              <span class="stat-item"><i class="bi bi-bag-check-fill"></i> Đã bán '. (int)($product['sold_count'] ?? 0) .'</span>';
+    $html .= '          </div>';
     $html .= '    </div>';
     $html .= '</div>';
     $html .= '</div>';
@@ -59,8 +64,17 @@ try {
     $products_per_page = 9;
     $offset = ($page - 1) * $products_per_page;
 
-    // --- 2. XÂY DỰNG CÁC THÀNH PHẦN CỦA CÂU TRUY VẤN ---
-    $sql_select = "SELECT DISTINCT p.id, p.name, p.slug, pv.price, pv.original_price, pi.image_url, p.created_at, pv.id as variant_id";
+    // --- XÂY DỰNG CÂU TRUY VẤN (ĐÃ NÂNG CẤP) ---
+    $sql_select = "
+        SELECT DISTINCT 
+            p.id, p.name, p.slug, 
+            pv.price, pv.original_price, 
+            pi.image_url, 
+            p.created_at, 
+            pv.id as variant_id,
+            (SELECT COUNT(id) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
+            (SELECT SUM(oi.quantity) FROM order_items oi JOIN product_variants p_v ON oi.variant_id = p_v.id JOIN orders o ON oi.order_id = o.id WHERE p_v.product_id = p.id AND o.status = 'completed') as sold_count
+    ";
     $sql_from = " FROM products p 
                   JOIN product_variants pv ON p.id = pv.product_id 
                   LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1";

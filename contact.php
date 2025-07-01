@@ -42,13 +42,14 @@ include 'templates/header.php';
                </div>
                <div class="row">
                   <div class="col-md-6 mb-3">
-                     <label for="contact-email" class="form-label">Email</label>
-                     <input type="email" class="form-control" id="contact-email" name="email" required>
+                     <label for="contact-phone" class="form-label">Số điện thoại</label>
+                     <input type="tel" class="form-control" id="contact-phone" name="phone" required>
                   </div>
                   <div class="col-md-6 mb-3">
-                     <label for="contact-phone" class="form-label">Số điện thoại (tùy chọn)</label>
-                     <input type="tel" class="form-control" id="contact-phone" name="phone">
+                     <label for="contact-email" class="form-label">Email (tùy chọn)</label>
+                     <input type="email" class="form-control" id="contact-email" name="email">
                   </div>
+
                </div>
                <div class="mb-3"><label for="contact-subject" class="form-label">Chủ đề</label><input type="text"
                      class="form-control" id="contact-subject" name="subject" required></div>

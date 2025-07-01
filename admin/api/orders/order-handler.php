@@ -32,6 +32,29 @@ try {
             $stmt = $pdo->prepare("UPDATE orders SET customer_name = ?, customer_phone = ?, customer_address = ? WHERE id = ?");
             $stmt->execute([$name, $phone, $address, $order_id]);
             break;
+            // === THÊM VÀO: LOGIC XÓA ĐƠN HÀNG ===
+        case 'delete':
+            $order_id = filter_input(INPUT_POST, 'order_id', FILTER_VALIDATE_INT);
+            if (!$order_id) {
+                throw new Exception("ID đơn hàng không hợp lệ.");
+            }
+
+            // Lưu ý: Việc xóa đơn hàng có thể cần các logic phức tạp hơn như
+            // hoàn lại số lượng tồn kho. Ở đây chúng ta chỉ thực hiện xóa đơn giản.
+            $pdo->beginTransaction();
+
+            // Xóa các chi tiết đơn hàng trước
+            $stmt_items = $pdo->prepare("DELETE FROM order_items WHERE order_id = ?");
+            $stmt_items->execute([$order_id]);
+
+            // Xóa đơn hàng chính
+            $stmt_order = $pdo->prepare("DELETE FROM orders WHERE id = ?");
+            $stmt_order->execute([$order_id]);
+
+            $pdo->commit();
+            json_response(true, 'Đã xóa đơn hàng thành công!');
+            break;
+        // === KẾT THÚC PHẦN THÊM MỚI ===
 
         default:
             throw new Exception("Hành động không được hỗ trợ.");

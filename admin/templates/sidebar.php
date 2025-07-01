@@ -1,9 +1,7 @@
 <aside class="admin-sidebar">
-   <h3 class="text-center my-3 text-white">Khóm Admin</h3>
+   <h3 class="text-center my-3 text-white"><a class="nav-link" href="/admin/"><i
+            class="bi bi-speedometer2 me-2"></i>Dashboard</a></h3>
    <ul class="nav flex-column">
-      <li class="nav-item">
-         <a class="nav-link" href="/admin/"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-      </li>
       <li class="nav-item">
          <a class="nav-link" href="/admin/orders.php"><i class="bi bi-receipt me-2"></i>Đơn hàng</a>
       </li>
@@ -26,7 +24,7 @@
          <a class="nav-link" data-bs-toggle="collapse" href="#product-data-menu" role="button">
             <i class="bi bi-box-seam me-2"></i>Dữ liệu Sản phẩm <i class="bi bi-chevron-down float-end"></i>
          </a>
-         <div class="collapse show" id="product-data-menu">
+         <div class="collapse" id="product-data-menu">
             <ul class="nav flex-column ms-3">
                <li class="nav-item"><a class="nav-link" href="/admin/products.php">Sản phẩm</a></li>
                <li class="nav-item"><a class="nav-link" href="/admin/categories.php">Danh mục</a></li>
@@ -39,6 +37,8 @@
 
       <li class="nav-item"><a class="nav-link" href="/admin/reviews.php"><i class="bi bi-star me-2"></i>Đánh giá</a>
       </li>
+      <li class="nav-item"><a class="nav-link" href="/admin/contacts.php"><i
+               class="bi bi-envelope-paper-fill me-2"></i>Tin nhắn Liên hệ</a></li>
       <li class="nav-item"><a class="nav-link" href="/admin/posts.php"><i class="bi bi-pencil-square me-2"></i>Bài
             viết</a></li>
 

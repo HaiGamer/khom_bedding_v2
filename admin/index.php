@@ -16,6 +16,9 @@ $low_stock_products = $pdo->query("SELECT COUNT(id) FROM product_variants WHERE 
 // Lấy 10 đơn hàng mới nhất
 $latest_orders = $pdo->query("SELECT id, customer_name, order_total, status FROM orders ORDER BY created_at DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
 
+// LẤY 10 TIN NHẮN LIÊN HỆ MỚI NHẤT
+$latest_contacts = $pdo->query("SELECT id, name, subject, created_at FROM contacts WHERE status = 'new' ORDER BY created_at DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+
 // Lấy Top 5 sản phẩm bán chạy nhất trong tháng
 $top_products = $pdo->query("
     SELECT p.id,p.name,p.slug, SUM(oi.quantity) as total_sold
@@ -154,6 +157,48 @@ $top_products = $pdo->query("
          </div>
       </div>
    </div>
+
+
+   <div class="row">
+      <div class="col-lg-8 mb-4">
+         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+               <strong>Tin nhắn mới nhất</strong>
+               <a href="/admin/contacts.php" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+               <ul class="list-group list-group-flush">
+                  <?php if (empty($latest_contacts)): ?>
+                  <li class="list-group-item">Không có tin nhắn mới nào.</li>
+                  <?php else: ?>
+                  <?php foreach($latest_contacts as $contact): ?>
+                  <a href="#" class="list-group-item list-group-item-action">
+                     <div class="fw-bold"><?= htmlspecialchars($contact['name']) ?></div>
+                     <small class="text-muted"><?= htmlspecialchars($contact['subject']) ?></small>
+                  </a>
+                  <?php endforeach; ?>
+                  <?php endif; ?>
+               </ul>
+            </div>
+         </div>
+      </div>
+      <div class="col-lg-4 mb-4">
+         <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+               <strong>Tin nhắn mới nhất</strong>
+               <a href="/admin/contacts.php" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+            </div>
+            <div class="card-body p-0">
+               <ul class="list-group list-group-flush">
+
+                  <li class="list-group-item">Không có tin nhắn mới nào.</li>
+
+               </ul>
+            </div>
+         </div>
+      </div>
+   </div>
+
 </div>
 
 <script src="/admin/assets/js/admin-dashboard.js"></script>

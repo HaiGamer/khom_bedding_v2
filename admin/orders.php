@@ -100,6 +100,8 @@ require_once __DIR__ . '/core/helpers.php';
                      <td class="text-end">
                         <a href="/admin/order-detail.php?id=<?php echo $order['id']; ?>"
                            class="btn btn-sm btn-primary">Xem</a>
+                        <button class="btn btn-sm btn-outline-danger btn-delete-order"
+                           data-id="<?= $order['id'] ?>">Xóa</button>
                      </td>
                   </tr>
                   <?php endforeach; ?>
@@ -123,7 +125,7 @@ require_once __DIR__ . '/core/helpers.php';
    </nav>
    <?php endif; ?>
 </div>
-
+<script src="/admin/assets/js/admin-orders.js"></script>
 <?php
 include __DIR__ . '/templates/footer.php';
 ?>

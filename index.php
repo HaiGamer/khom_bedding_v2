@@ -9,91 +9,92 @@ include 'templates/header.php';
 
 // --- TRUY VẤN DỮ LIỆU ---
 
-// 1. Lấy 3 danh mục đầu tiên để làm tab "Sản phẩm nổi bật"
+// 1. Lấy 3 danh mục đầu tiên
 $stmt_cats_featured = $pdo->query("SELECT id, name, slug FROM categories LIMIT 3");
 $featured_categories = $stmt_cats_featured->fetchAll();
 
-// 2. Lấy 4 sản phẩm mới nhất
-$stmt_new_products = $pdo->query("
-    SELECT p.id, p.name, p.slug, pv.price, pv.original_price, pi.image_url
-    FROM products p
-    JOIN product_variants pv ON p.id = pv.product_id AND pv.is_default = 1
-    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1
-    ORDER BY p.created_at DESC
-    LIMIT 4
-");
-$new_products = $stmt_new_products->fetchAll();
+/**
+ * === HÀM TRUY VẤN SẢN PHẨM CHUNG (ĐÃ NÂNG CẤP) ===
+ * Hàm này sẽ lấy tất cả thông tin cần thiết, bao gồm cả lượt bán và đánh giá.
+ */
+function get_homepage_products($pdo, $order_by, $limit = 4, $where_clause = "", $params = []) {
+    $sql = "
+        SELECT 
+            p.id, p.name, p.slug, 
+            pv.id as variant_id, pv.price, pv.original_price, 
+            pi.image_url,
+            (SELECT COUNT(id) FROM reviews WHERE product_id = p.id AND status = 'approved') as review_count,
+            (SELECT SUM(oi.quantity) FROM order_items oi JOIN product_variants p_v ON oi.variant_id = p_v.id JOIN orders o ON oi.order_id = o.id WHERE p_v.product_id = p.id AND o.status = 'completed') as sold_count
+        FROM products p
+        JOIN product_variants pv ON p.id = pv.product_id AND pv.is_default = 1
+        LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1
+        {$where_clause}
+        GROUP BY p.id
+        ORDER BY {$order_by}
+        LIMIT {$limit}
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
-// 3. Lấy 4 sản phẩm bán chạy (TẠM THỜI lấy ngẫu nhiên)
-// Sau này khi có dữ liệu đơn hàng, chúng ta sẽ thay bằng logic thật
-$stmt_best_sellers = $pdo->query("
-    SELECT p.id, p.name, p.slug, pv.price, pv.original_price, pi.image_url
-    FROM products p
-    JOIN product_variants pv ON p.id = pv.product_id AND pv.is_default = 1
-    LEFT JOIN product_images pi ON p.id = pi.product_id AND pi.is_featured = 1
-    ORDER BY RAND() 
-    LIMIT 4
-");
-$best_selling_products = $stmt_best_sellers->fetchAll();
+// Lấy sản phẩm mới nhất
+$new_products = get_homepage_products($pdo, "p.created_at DESC");
 
-// 4. LẤY 3 BỘ SƯU TẬP MỚI NHẤT CÓ HÌNH ẢNH
-$stmt_collections = $pdo->query("
-    SELECT name, slug, image_url 
-    FROM collections 
-    WHERE image_url IS NOT NULL AND image_url != '' 
-    ORDER BY id DESC 
-    LIMIT 3
-");
+// Lấy sản phẩm bán chạy nhất
+$best_selling_products = get_homepage_products($pdo, "sold_count DESC");
+
+
+// 4. Lấy các bộ sưu tập
+$stmt_collections = $pdo->query("SELECT name, slug, image_url FROM collections WHERE image_url IS NOT NULL AND image_url != '' ORDER BY id DESC LIMIT 3");
 $homepage_collections = $stmt_collections->fetchAll(PDO::FETCH_ASSOC);
 
-// === LOGIC MỚI: LẤY 3 BÀI VIẾT MỚI NHẤT ĐỂ HIỂN THỊ RA TRANG CHỦ ===
-$stmt_posts = $pdo->query("
-    SELECT title, slug, excerpt, featured_image, created_at
-    FROM posts 
-    WHERE status = 'published' AND featured_image IS NOT NULL AND featured_image != '' 
-    ORDER BY created_at DESC 
-    LIMIT 3
-");
+// 5. Lấy các bài viết blog
+$stmt_posts = $pdo->query("SELECT title, slug, excerpt, featured_image, created_at FROM posts WHERE status = 'published' AND featured_image IS NOT NULL AND featured_image != '' ORDER BY created_at DESC LIMIT 3");
 $homepage_posts = $stmt_posts->fetchAll();
+
+
+
 
 // === THÊM TRUY VẤN MỚI ĐỂ LẤY BANNER ===
 $stmt_banners = $pdo->query("SELECT * FROM banners WHERE is_active = 1 ORDER BY display_order ASC");
 $banners = $stmt_banners->fetchAll(PDO::FETCH_ASSOC);
 
+
+
 // --- HÀM TÁI SỬ DỤNG ---
 // Hàm để hiển thị một thẻ sản phẩm
+// === HÀM RENDER THẺ SẢN PHẨM (ĐÃ NÂNG CẤP) ===
 function render_product_card($product) {
-    // Định dạng giá tiền
-    $price_formatted = number_format($product['price'], 0, ',', '.') . 'đ';
-    $original_price_formatted = $product['original_price'] ? number_format($product['original_price'], 0, ',', '.') . 'đ' : '';
-    
-    // Tính phần trăm giảm giá
+    $price_formatted = number_format($product['price'] ?? 0, 0, ',', '.') . 'đ';
+    $original_price_formatted = !empty($product['original_price']) ? number_format($product['original_price'], 0, ',', '.') . 'đ' : '';
     $sale_percentage = 0;
-    if ($product['original_price'] && $product['price'] < $product['original_price']) {
+    if (!empty($product['original_price']) && $product['price'] < $product['original_price']) {
         $sale_percentage = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
     }
-
+    
     echo '<div class="col-6 col-lg-3 mb-4">';
-    echo '  <div class="product-card">';
+    echo '  <div class="product-card h-100 d-flex flex-column">';
     echo '      <div class="product-card-img">';
     echo '          <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">';
-    echo '              <img src="'. htmlspecialchars($product['image_url'] ? $product['image_url'] : '/assets/images/placeholder.png') .'" alt="'. htmlspecialchars($product['name']) .'">';
+    echo '              <img src="'. htmlspecialchars($product['image_url'] ?? '/assets/images/placeholder.png') .'" alt="'. htmlspecialchars($product['name']) .'">';
     echo '          </a>';
-    if ($sale_percentage > 0) {
-        echo '          <span class="product-card-sale">-' . $sale_percentage . '%</span>';
-    }
+    if ($sale_percentage > 0) { echo '          <span class="product-card-sale">-' . $sale_percentage . '%</span>'; }
     echo '          <div class="product-card-actions">';
     echo '              <a href="#" class="btn-action btn-add-to-cart" data-slug="'. htmlspecialchars($product['slug']) .'" title="Thêm vào giỏ hàng"><i class="bi bi-cart-plus"></i></a>';
     echo '              <a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html" class="btn-action" title="Xem chi tiết"><i class="bi bi-eye"></i></a>';
     echo '          </div>';
     echo '      </div>';
-    echo '      <div class="product-card-body">';
+    echo '      <div class="product-card-body d-flex flex-column flex-grow-1">';
     echo '          <h3 class="product-card-title"><a href="/san-pham/'. htmlspecialchars($product['slug']) .'.html">'. htmlspecialchars($product['name']) .'</a></h3>';
-    echo '          <div class="product-card-price">';
+    echo '          <div class="product-card-price mt-auto">';
     echo '              <span class="price-sale">'. $price_formatted .'</span>';
-    if ($original_price_formatted) {
-        echo '          <span class="price-original">'. $original_price_formatted .'</span>';
-    }
+    if ($original_price_formatted) { echo '          <span class="price-original">'. $original_price_formatted .'</span>'; }
+    echo '          </div>';
+    // Hiển thị đánh giá và lượt bán
+    echo '          <div class="product-card-stats mt-2">';
+    echo '              <span class="stat-item"><i class="bi bi-star-fill text-warning"></i> '. number_format((float)($product['review_count'] ?? 0), 1) .'</span>';
+    echo '              <span class="stat-item"><i class="bi bi-bag-check-fill"></i> Đã bán '. (int)($product['sold_count'] ?? 0) .'</span>';
     echo '          </div>';
     echo '      </div>';
     echo '  </div>';
@@ -185,6 +186,7 @@ function render_product_card($product) {
       </div>
    </div>
 </section>
+
 <?php if (!empty($homepage_collections)): ?>
 <section class="homepage-collections" id="homepage-collections">
    <div class="container">
