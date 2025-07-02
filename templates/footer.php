@@ -30,6 +30,26 @@
    </div>
 </div>
 
+
+<div class="fab-container">
+   <div class="fab-options">
+      <a href="tel:0388105502" class="fab-option" title="Gọi điện">
+         <i class="bi bi-telephone-fill"></i>
+      </a>
+      <a href="https://zalo.me/0388105502" target="_blank" class="fab-option" title="Zalo">
+         <img src="/assets/images/zalo-icon.png" alt="Zalo">
+      </a>
+      <a href="https://m.me/khom.bedding23" target="_blank" class="fab-option" title="Messenger">
+         <i class="bi bi-messenger"></i>
+      </a>
+   </div>
+   <div class="fab-main" id="fab-main-btn" title="Liên hệ">
+      <i class="bi bi-headset icon-main"></i>
+      <i class="bi bi-x icon-close"></i>
+   </div>
+</div>
+
+
 <footer class="site-footer">
    <div class="container">
       <div class="row">
@@ -39,9 +59,8 @@
                <p>Khóm Bedding - Nâng tầm phòng ngủ, giá yêu thương cho mọi nhà. Chuyên cung cấp các sản phẩm chăn ga
                   gối đệm chất lượng cao.</p>
                <div class="footer-social">
-                  <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
-                  <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
-                  <a href="#" title="Tiktok"><i class="bi bi-tiktok"></i></a>
+                  <a href="https://www.facebook.com/khom.bedding23/" title="Facebook"><i class="bi bi-facebook"></i></a>
+                  <a href="https://www.tiktok.com/@khom.bedding23" title="Tiktok"><i class="bi bi-tiktok"></i></a>
                </div>
             </div>
          </div>

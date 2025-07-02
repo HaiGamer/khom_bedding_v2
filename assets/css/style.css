@@ -1094,3 +1094,97 @@ aside h4 {
     transform: translateY(-3px);
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+/* ============================================= */
+/* === NÚT LIÊN HỆ ĐỘNG (FAB) === */
+/* ============================================= */
+.fab-container {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    z-index: 1000;
+    cursor: pointer;
+}
+
+.fab-main {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.fab-main .icon-close {
+    display: none;
+}
+
+.fab-options {
+    position: absolute;
+    bottom: 65px; /* Khoảng cách từ nút chính */
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fab-option {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+}
+
+.fab-option img {
+    width: 28px;
+    height: 28px;
+}
+
+/* Các màu nền cho từng nút con */
+.fab-option:nth-child(1) { background-color: #25D366; } /* Phone - Dùng màu của WhatsApp cho nổi bật */
+.fab-option:nth-child(2) { background-color: #0068FF; } /* Zalo */
+.fab-option:nth-child(3) { background-color: #00B2FF; } /* Messenger */
+
+
+/* Trạng thái khi active */
+.fab-container.active .fab-main {
+    transform: rotate(360deg);
+    animation: none; /* Tắt animation khi active */
+}
+.fab-container.active .fab-main .icon-main {
+    display: none;
+}
+.fab-container.active .fab-main .icon-close {
+    display: block;
+}
+.fab-container.active .fab-option {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hiệu ứng delay cho các nút con */
+.fab-container.active .fab-option:nth-child(1) { transition-delay: 0.1s; }
+.fab-container.active .fab-option:nth-child(2) { transition-delay: 0.2s; }
+.fab-container.active .fab-option:nth-child(3) { transition-delay: 0.3s; }
+
+/* Animation nhấp nháy */
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 163, 115, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(212, 163, 115, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(212, 163, 115, 0); }
+}

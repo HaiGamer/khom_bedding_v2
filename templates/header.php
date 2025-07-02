@@ -63,7 +63,7 @@ $page_description = $page_description ?? 'Chuyên cung cấp các sản phẩm c
                   </form>
                   <div class="header-hotline me-3">
                      <i class="bi bi-telephone-fill"></i>
-                     <span>Hotline: <strong>1900.1234</strong></span>
+                     <span>Hotline: <strong>0388.105.502</a></strong></span>
                   </div>
                   <a href="/cart.html" class="header-cart-icon position-relative">
                      <i class="bi bi-bag"></i>

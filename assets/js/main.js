@@ -84,6 +84,16 @@ window.addToCart = addToCart;
 // === CÁC LOGIC CHẠY KHI TRANG TẢI XONG ===
 // =============================================
 document.addEventListener("DOMContentLoaded", function() {
+
+    // === LOGIC XỬ LÝ NÚT LIÊN HỆ ĐỘNG ===
+    const fabContainer = document.querySelector('.fab-container');
+    const fabMainBtn = document.getElementById('fab-main-btn');
+
+    if (fabMainBtn) {
+        fabMainBtn.addEventListener('click', () => {
+            fabContainer.classList.toggle('active');
+        });
+    }
     
     // --- XỬ LÝ MODAL THÊM NHANH SẢN PHẨM ---
     document.addEventListener('click', function(e) {
@@ -441,5 +451,7 @@ document.addEventListener("DOMContentLoaded", function() {
             history.pushState(null, '', `${targetUrl}?${params.replace(/&?filter_type=[^&]*/g, '').replace(/&?filter_slug=[^&]*/g, '').replace(/&?search_term=[^&]*/g, '')}`);
             // ...
         });
+
    
 });
+
